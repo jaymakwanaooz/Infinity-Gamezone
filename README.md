@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎮 INFINITYGZ PLATFORM
 
-## Getting Started
+![Project Status](https://img.shields.io/badge/Status-Major_Base_Developed-brightgreen?style=for-the-badge)
+![Tech Stack](https://img.shields.io/badge/Tech-Next.js_16_|_Tailwind_v4_|_React_19-00f3ff?style=for-the-badge)
 
-First, run the development server:
+**InfinityGZ** is a premium, high-performance gaming platform designed for the modern eSports era. From high-end battle stations to immersive VR arenas, this platform provides everything a competitive gamer needs.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Key Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 💻 Pro Gaming Setup
+- **Ultimate Hardware**: RTX 4090 configurations with Intel i9-14900K processors.
+- **Ultra-High Refresh**: 360Hz & 500Hz Zowie monitors for millisecond advantages.
+- **Precision Gear**: Professional-grade peripherals from Razer, Zowie, and Logitech.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 👓 Immersive Arenas
+- **Console Lounge**: PS5 & Xbox Series X setups with 75" 4K OLED displays.
+- **VR Arena**: Fully wireless, large-scale VR tracking systems for total immersion.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 🏆 Competitive Hub
+- **Tournaments**: Real-time event listings with prize pools, brackets, and live registration.
+- **Wall of Fame**: Celebrating past champions and eSports milestones.
 
-## Learn More
+### 💎 Battle Passes & Memberships
+- **Hourly Tiers**: Selective pricing for Standard, Pro, and VIP Booths.
+- **Night Owl Pass**: Exclusive night-long gaming access with specialized benefits.
+- **Pro Membership**: Monthly subscriptions with tournament discounts and lockers.
 
-To learn more about Next.js, take a look at the following resources:
+## 🛠️ Tech Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
+- **Library**: [React 19](https://reactjs.org/)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Animations**: [Framer Motion](https://www.framer.com/motion/) & [GSAP](https://greensock.com/gsap/)
+- **Database**: [Prisma](https://www.prisma.io/)
+- **Icons**: [Lucide React](https://lucide.dev/)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🏃 Running Locally
 
-## Deploy on Vercel
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/jaymakwanaooz/Infinity-Gamezone.git
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. **Set up Environment**:
+   Copy `.env.example` to `.env` and configure your database settings.
+
+4. **Launch Dev Server**:
+   ```bash
+   npm run dev
+   ```
+
+---
+
+*Developed for the next generation of gamers.*

@@ -1,0 +1,7 @@
+{
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "package.json": "package-lock.json, postcss.config.mjs, eslint.config.mjs, tsconfig.json, next-env.d.ts, next.config.ts, prisma.config.ts"
+  }
+}

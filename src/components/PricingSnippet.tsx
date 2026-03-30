@@ -23,14 +23,7 @@ const miniPackages = [
     color: "neon-cyan",
     popular: true,
   },
-  {
-    name: "VIP Booth",
-    price: "₹499",
-    duration: "Per Hour",
-    features: ["Private Cabin", "RTX 4090", "500Hz Monitor", "Complimentary Drink"],
-    link: "/packages",
-    color: "neon-purple",
-  },
+  // 3rd package removed to be replaced by 'Explore More' card
 ];
 
 export default function PricingSnippet() {
@@ -90,6 +83,27 @@ export default function PricingSnippet() {
               </Link>
             </motion.div>
           ))}
+
+          {/* Explore More Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="relative group glass-panel rounded-2xl p-8 border-t-4 border-neon-purple transition-all duration-300 hover:-translate-y-2 flex flex-col justify-center items-center text-center bg-neon-purple/5 hover:bg-neon-purple/10"
+          >
+            <h3 className="text-3xl font-black text-white mb-4 uppercase tracking-wider">Explore All<br/><span className="text-neon-purple">Passes</span></h3>
+            <p className="text-gray-400 text-sm mb-8 leading-relaxed">
+              Unlock VIP booths, weekend warrior bundles, tournament drops, and extreme streaming pods.
+            </p>
+            <Link
+              href="/packages"
+              className="w-full mt-auto py-4 rounded-lg font-bold text-sm transition-all duration-300 flex items-center justify-center space-x-2 bg-neon-purple text-white shadow-[0_0_15px_rgba(192,38,211,0.3)] hover:shadow-[0_0_30px_rgba(192,38,211,0.6)]"
+            >
+              <span>View Full Pricing</span>
+              <ArrowRight className="w-5 h-5 ml-1" />
+            </Link>
+          </motion.div>
         </div>
       </div>
     </section>

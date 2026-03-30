@@ -1,9 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import SectionHeading from "@/components/SectionHeading";
-import { Check, Zap, Crown, User, Coffee, ShieldCheck } from "lucide-react";
+import { Check, Zap, Crown, User, Coffee, ShieldCheck, X, CreditCard } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 const packages = [
   {
@@ -54,6 +56,49 @@ const packages = [
     ],
     cta: "Book the Suite",
   },
+  {
+    name: "Casual Drop-In",
+    price: "₹69",
+    duration: "Per Hour",
+    description: "Get in, play a quick match, get out.",
+    color: "gray-400",
+    features: [
+      "GTX 1660 / RTX 3050",
+      "1080p 75Hz Monitor",
+      "Standard Peripherals",
+      "Walk-in availability",
+    ],
+    cta: "Play Now",
+  },
+  {
+    name: "Streamer Pod",
+    price: "₹299",
+    duration: "Per Hour",
+    description: "Soundproof streaming setup with pre-configured OBS & lighting.",
+    color: "neon-green",
+    features: [
+      "Dual PC Setup",
+      "Elgato Stream Deck",
+      "Shure SM7B Mic",
+      "Ring Light & Key Lights",
+      "Soundproof Glass",
+    ],
+    cta: "Book Pod",
+  },
+  {
+    name: "Night Warrior",
+    price: "₹349",
+    duration: "Full Night",
+    description: "The ultimate overnight grinding session from 11 PM to 7 AM.",
+    color: "orange-500",
+    features: [
+      "Access to Elite Tier PCs",
+      "Free Energy Drink",
+      "Late Night Eatery Access",
+      "Dedicated Night Staff",
+    ],
+    cta: "Book Night Pass",
+  },
 ];
 
 const memberships = [
@@ -74,6 +119,40 @@ const memberships = [
 ];
 
 export default function PackagesPage() {
+  const { isLoggedIn, login } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<any>(null);
+  const [error, setError] = useState("");
+
+  const handlePackageClick = (pkg: any) => {
+    setSelectedPackage(pkg);
+    if (!isLoggedIn) {
+      setShowAuthModal(true);
+    } else {
+      setShowCheckoutModal(true);
+    }
+  };
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const target = e.target as typeof e.target & {
+      0: { value: string };
+      1: { value: string };
+    };
+    const user = target[0].value;
+    const pass = target[1].value;
+
+    if (user === "user" && pass === "user") {
+      setError("");
+      login(user);
+      setShowAuthModal(false);
+      setShowCheckoutModal(true);
+    } else {
+      setError("No user found or wrong password");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gaming-bg">
       <Navbar />
@@ -126,7 +205,9 @@ export default function PackagesPage() {
                 ))}
               </ul>
 
-              <button className={`w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all duration-300 ${
+              <button 
+                onClick={() => handlePackageClick(pkg)}
+                className={`w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all duration-300 ${
                 pkg.popular 
                   ? "bg-neon-cyan text-black hover:bg-white hover:glow-cyan" 
                   : "bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20"
@@ -202,6 +283,95 @@ export default function PackagesPage() {
                ))}
             </div>
         </section>
+
+        {/* Modals */}
+        <AnimatePresence>
+          {showAuthModal && (
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            >
+              <motion.div 
+                initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+                className="glass-panel p-8 rounded-2xl border border-neon-cyan/50 max-w-sm w-full glow-cyan shadow-xl relative"
+              >
+                <button onClick={() => setShowAuthModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                  <X className="w-6 h-6" />
+                </button>
+                <h3 className="text-2xl font-black mb-2 text-white uppercase tracking-wider">Access Terminal</h3>
+                <p className="text-gray-400 text-sm mb-4">Login or sign up to secure your battle pass.</p>
+                {error && <p className="text-red-500 text-sm mb-4 bg-red-500/10 py-2 px-3 border border-red-500/30 rounded">{error}</p>}
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <input type="text" placeholder="Username" defaultValue="user" required className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-neon-cyan transition-colors" />
+                  <input type="password" placeholder="Password" defaultValue="user" required className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-neon-cyan transition-colors" />
+                  <button type="submit" className="w-full mt-2 py-3 bg-neon-cyan text-black font-black tracking-widest text-sm rounded-xl flex justify-center items-center hover:bg-white hover:glow-cyan transition-colors">
+                    AUTHENTICATE
+                  </button>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
+
+          {showCheckoutModal && selectedPackage && (
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            >
+              <motion.div 
+                initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+                className="glass-panel p-8 rounded-2xl border border-neon-purple/50 max-w-md w-full glow-purple shadow-xl relative"
+              >
+                <button onClick={() => setShowCheckoutModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                  <X className="w-6 h-6" />
+                </button>
+                <h3 className="text-2xl font-black mb-2 text-white uppercase tracking-wider">Checkout Details</h3>
+                <p className="text-gray-400 text-sm border-b border-white/10 pb-4 mb-6">Review your selected package and confirm your payment.</p>
+                
+                <div className="bg-white/5 border border-white/10 rounded-xl p-6 mb-8">
+                   <div className="flex justify-between items-start mb-4">
+                     <div>
+                       <h4 className="text-xl font-bold text-white tracking-widest uppercase">{selectedPackage.name}</h4>
+                       <p className="text-gray-400 text-sm">{selectedPackage.duration}</p>
+                     </div>
+                     <span className="text-3xl font-black text-neon-cyan drop-shadow-[0_0_8px_rgba(0,243,255,0.4)]">{selectedPackage.price}</span>
+                   </div>
+                   <ul className="space-y-2 mt-4 pt-4 border-t border-white/10">
+                     {selectedPackage.features.slice(0, 3).map((f: string) => (
+                       <li key={f} className="flex items-start text-sm text-gray-300">
+                         <Check className="w-4 h-4 mr-2 mt-0.5 shrink-0 text-neon-green" /> {f}
+                       </li>
+                     ))}
+                     {selectedPackage.features.length > 3 && (
+                       <li className="text-sm text-gray-500 italic pl-6">+ More premium benefits</li>
+                     )}
+                   </ul>
+                </div>
+                
+                <div className="space-y-4 mb-8">
+                  <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest border-b border-white/10 pb-2">Payment Source</h4>
+                  <input type="text" placeholder="Cardholder Name" defaultValue="ALEX MERCER" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-neon-purple transition-colors" />
+                  <div className="relative">
+                    <input type="text" placeholder="0000 0000 0000 0000" defaultValue="4111 1111 1111 1111" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-mono focus:outline-none focus:border-neon-purple transition-colors" />
+                    <CreditCard className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                  </div>
+                  <div className="flex gap-4">
+                    <input type="text" placeholder="MM/YY" defaultValue="12/28" className="w-1/2 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-mono focus:outline-none focus:border-neon-purple transition-colors" />
+                    <input type="text" placeholder="CVV" defaultValue="123" className="w-1/2 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-mono focus:outline-none focus:border-neon-purple transition-colors" />
+                  </div>
+                </div>
+                
+                <div className="flex space-x-4">
+                  <button onClick={() => setShowCheckoutModal(false)} className="px-6 py-3 border border-white/20 rounded-xl font-bold text-white hover:bg-white/5 transition-colors">
+                    Cancel
+                  </button>
+                  <button onClick={() => { alert('Purchase Successful! Redirecting to Dashboard...'); setShowCheckoutModal(false); }} className="flex-1 py-3 bg-neon-purple text-white font-black text-sm tracking-widest rounded-xl flex justify-center items-center hover:bg-white hover:text-black transition-all duration-300 shadow-[0_0_15px_rgba(192,38,211,0.5)] space-x-2">
+                    <CreditCard className="w-5 h-5 mr-2" /> <span>CONFIRM PAYMENT</span>
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   );

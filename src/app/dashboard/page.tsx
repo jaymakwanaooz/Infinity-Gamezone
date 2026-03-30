@@ -2,34 +2,150 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Coins, History, Trophy, CreditCard, ChevronRight, X, Clock, Star, Gamepad2 } from "lucide-react";
+import { Coins, History, Trophy, CreditCard, ChevronRight, X, Clock, Star, Gamepad2, UserPlus, Swords, ArrowUpRight, ArrowDownLeft } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
-const HISTORY_DATA = [
-  { id: "TX1204", date: "Oct 24, 2026", type: "Top-up +500", amount: "+500 C", status: "Completed" },
-  { id: "TX1203", date: "Oct 22, 2026", type: "Tournament: CS2 Open", amount: "-150 C", status: "Completed" },
-  { id: "TX1202", date: "Oct 18, 2026", type: "Day Pass Bundle", amount: "-300 C", status: "Completed" },
+const CREDITS_HISTORY = [
+  { id: "CR1204", date: "Oct 24, 2026", type: "Top-up via Stripe", amount: "+500 C", status: "Completed" },
+  { id: "CR1203", date: "Oct 22, 2026", type: "Tournament Entry: CS2 Open", amount: "-150 C", status: "Completed" },
+  { id: "CR1202", date: "Oct 18, 2026", type: "Day Pass Bundle Purchase", amount: "-300 C", status: "Completed" },
+  { id: "CR1201", date: "Oct 10, 2026", type: "Referral Bonus", amount: "+100 C", status: "Completed" },
+];
+
+const TOURNAMENT_HISTORY = [
+  { id: "TN1001", name: "Valorant Open S3", date: "Sep 15, 2026", placement: "#2", prize: "₹20,000", status: "Finished" },
+  { id: "TN1002", name: "CS2 Weekly Cup #8", date: "Aug 28, 2026", placement: "#5", prize: "—", status: "Finished" },
+  { id: "TN1003", name: "Valorant Open S4", date: "April 15, 2024", placement: "—", prize: "—", status: "Registered" },
+];
+
+const PAYMENT_HISTORY = [
+  { id: "PY2001", date: "Oct 24, 2026", method: "Visa •••• 4242", amount: "₹500", type: "Top-up", status: "Success" },
+  { id: "PY2002", date: "Oct 01, 2026", method: "UPI — user@paytm", amount: "₹1,200", type: "Night Warrior Pass", status: "Success" },
+  { id: "PY2003", date: "Sep 12, 2026", method: "Visa •••• 4242", amount: "₹300", type: "Day Pass", status: "Success" },
+  { id: "PY2004", date: "Aug 05, 2026", method: "UPI — user@paytm", amount: "₹2,000", type: "Top-up", status: "Refunded" },
 ];
 
 export default function Dashboard() {
+  const { isLoggedIn, username, login, logout } = useAuth();
+  const [error, setError] = useState("");
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [credits, setCredits] = useState(1450);
   const [showTopUpModal, setShowTopUpModal] = useState(false);
   const [amount, setAmount] = useState(500);
+  const [historyTab, setHistoryTab] = useState<"credits" | "tournaments" | "payments">("credits");
 
   const handleTopup = () => {
     setCredits((prev) => prev + amount);
     setShowTopUpModal(false);
   };
 
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const target = e.target as typeof e.target & {
+      0: { value: string };
+      1: { value: string };
+    };
+    const user = target[0].value;
+    const pass = target[1].value;
+    
+    if (user === "user" && pass === "user") {
+      setError("");
+      login(user);
+    } else {
+      setError("No user found or wrong password");
+    }
+  };
+
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    const target = e.target as typeof e.target & {
+      0: { value: string };
+      1: { value: string };
+      2: { value: string };
+    };
+    const newUser = target[0].value;
+    const pass = target[1].value;
+    const confirm = target[2].value;
+
+    if (pass !== confirm) {
+      setError("Passwords do not match");
+      return;
+    }
+    setError("");
+    login(newUser);
+  };
+
+  if (!isLoggedIn) {
+     return (
+        <div className="flex items-center justify-center min-h-[70vh] px-4">
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
+              className="glass-panel p-8 rounded-2xl border border-neon-cyan/50 max-w-sm w-full glow-cyan shadow-xl"
+            >
+              <h3 className="text-2xl font-black mb-2 text-white uppercase tracking-wider">Access Terminal</h3>
+              <p className="text-gray-400 text-sm mb-4">Login or create an account to continue.</p>
+
+              {/* Login / Register Tabs */}
+              <div className="flex mb-6 bg-black/40 rounded-lg p-1 border border-white/10">
+                <button
+                  onClick={() => { setError(""); setAuthMode("login"); }}
+                  className={`flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-md transition-all ${
+                    authMode === "login" ? "bg-neon-cyan text-black" : "text-gray-400 hover:text-white"
+                  }`}
+                >LOGIN</button>
+                <button
+                  onClick={() => { setError(""); setAuthMode("register"); }}
+                  className={`flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-md transition-all ${
+                    authMode === "register" ? "bg-neon-cyan text-black" : "text-gray-400 hover:text-white"
+                  }`}
+                >REGISTER</button>
+              </div>
+
+              {error && <p className="text-red-500 text-sm mb-4 bg-red-500/10 py-2 px-3 border border-red-500/30 rounded text-center">{error}</p>}
+
+              {authMode === "login" ? (
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <input type="text" placeholder="Username" defaultValue="user" required className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-neon-cyan transition-colors" />
+                  <input type="password" placeholder="Password" defaultValue="user" required className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-neon-cyan transition-colors" />
+                  <button type="submit" className="w-full mt-2 py-3 bg-neon-cyan text-black font-black tracking-widest text-sm rounded-xl flex justify-center items-center hover:bg-white hover:glow-cyan transition-colors">
+                    AUTHENTICATE
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleRegister} className="space-y-4">
+                  <input type="text" placeholder="Choose a Username" required className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-neon-cyan transition-colors" />
+                  <input type="password" placeholder="Create Password" required className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-neon-cyan transition-colors" />
+                  <input type="password" placeholder="Confirm Password" required className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-neon-cyan transition-colors" />
+                  <button type="submit" className="w-full mt-2 py-3 bg-neon-cyan text-black font-black tracking-widest text-sm rounded-xl flex justify-center items-center hover:bg-white hover:glow-cyan transition-colors space-x-2">
+                    <UserPlus className="w-4 h-4" />
+                    <span>CREATE ACCOUNT</span>
+                  </button>
+                </form>
+              )}
+            </motion.div>
+        </div>
+     );
+  }
+
   return (
     <div className="space-y-10 relative">
       {/* Header & Ledger */}
       {/* Header & Stats Grid */}
       <header className="space-y-6 pb-6 border-b border-gaming-border">
-        <div>
-          <h1 className="text-4xl font-black tracking-wider text-white">
-            USER <span className="text-neon-cyan text-glow-cyan">COMMAND</span>
-          </h1>
-          <p className="text-gray-400 mt-2 font-medium">Review your progression, stats, and top up your credits.</p>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-4xl font-black tracking-wider text-white">
+              Welcome, <span className="text-neon-cyan text-glow-cyan uppercase">{username || "Gamer"}</span>
+            </h1>
+            <p className="text-gray-400 mt-2 font-medium">Your command center. Track stats, top up credits, and dominate.</p>
+          </div>
+          <button 
+            onClick={logout}
+            className="px-6 py-2 bg-red-500/10 text-red-500 border border-red-500/30 font-black rounded-lg uppercase tracking-widest text-xs hover:bg-red-500 hover:text-white transition-all shadow-[0_0_15px_rgba(239,68,68,0.2)]"
+          >
+            LOGOUT
+          </button>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -97,17 +213,17 @@ export default function Dashboard() {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="glass-panel p-5 rounded-2xl border border-white/10 flex items-center space-x-4 group hover:border-white/30 transition-colors"
+            className="glass-panel p-5 rounded-2xl border border-red-500/30 flex items-center space-x-4 group hover:border-red-500/60 transition-colors"
           >
-            <div className="bg-white/5 p-3 rounded-xl group-hover:bg-white/10 transition-colors">
-              <Gamepad2 className="w-6 h-6 text-gray-300" />
+            <div className="bg-red-500/20 p-3 rounded-xl shadow-[0_0_15px_rgba(239,68,68,0.3)] group-hover:bg-red-500/30 transition-colors">
+              <Gamepad2 className="w-6 h-6 text-red-500" />
             </div>
             <div>
-              <p className="text-xs text-gray-400 font-bold tracking-widest uppercase mb-1">Top Games</p>
+              <p className="text-xs text-red-500/80 font-bold tracking-widest uppercase mb-1">Top Games</p>
               <div className="flex items-center space-x-2">
-                <span className="text-xs font-bold bg-white/10 px-2 py-1 rounded text-white border border-white/5">CS2</span>
-                <span className="text-xs font-bold bg-white/10 px-2 py-1 rounded text-white border border-white/5">VAL</span>
-                <span className="text-xs font-bold bg-white/10 px-2 py-1 rounded text-white border border-white/5">RL</span>
+                <span className="text-xs font-bold bg-red-500/10 px-2 py-1 rounded text-red-400 border border-red-500/20">CS2</span>
+                <span className="text-xs font-bold bg-red-500/10 px-2 py-1 rounded text-red-400 border border-red-500/20">VAL</span>
+                <span className="text-xs font-bold bg-red-500/10 px-2 py-1 rounded text-red-400 border border-red-500/20">RL</span>
               </div>
             </div>
           </motion.div>
@@ -122,67 +238,187 @@ export default function Dashboard() {
           <h2 className="text-xl font-bold text-white mb-4">Quick Actions</h2>
           
           <button 
-            onClick={() => setShowTopUpModal(true)}
-            className="w-full group relative flex items-center justify-between p-6 bg-neon-cyan/10 border border-neon-cyan/30 rounded-xl hover:bg-neon-cyan/20 transition-all glow-cyan"
+            onClick={() => setHistoryTab("credits")}
+            className={`w-full group relative flex items-center justify-between p-6 rounded-xl transition-all ${
+              historyTab === "credits" 
+                ? "bg-neon-cyan/10 border border-neon-cyan/30 glow-cyan" 
+                : "glass-panel hover:border-neon-cyan/30 hover:bg-neon-cyan/5"
+            }`}
           >
             <div className="flex items-center space-x-4">
-              <CreditCard className="w-6 h-6 text-neon-cyan group-hover:scale-110 transition-transform" />
-              <span className="font-bold text-lg">Top-up Credits</span>
+              <Coins className={`w-6 h-6 group-hover:scale-110 transition-all ${historyTab === "credits" ? "text-neon-cyan" : "text-gray-400 group-hover:text-neon-cyan"}`} />
+              <span className={`font-bold text-lg ${historyTab === "credits" ? "text-white" : "text-gray-300 group-hover:text-white"}`}>Credits History</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-neon-cyan" />
+            <ChevronRight className={`w-5 h-5 ${historyTab === "credits" ? "text-neon-cyan" : "text-gray-500 group-hover:text-neon-cyan"}`} />
           </button>
 
-          <button className="w-full group flex items-center justify-between p-6 glass-panel rounded-xl hover:border-neon-purple hover:bg-neon-purple/5 transition-all">
+          <button 
+            onClick={() => setHistoryTab("tournaments")}
+            className={`w-full group relative flex items-center justify-between p-6 rounded-xl transition-all ${
+              historyTab === "tournaments" 
+                ? "bg-neon-purple/10 border border-neon-purple/30 glow-purple" 
+                : "glass-panel hover:border-neon-purple/30 hover:bg-neon-purple/5"
+            }`}
+          >
             <div className="flex items-center space-x-4">
-              <Trophy className="w-6 h-6 text-gray-400 group-hover:text-neon-purple group-hover:scale-110 transition-all" />
-              <span className="font-bold text-lg text-gray-300 group-hover:text-white">Active Tournaments</span>
+              <Trophy className={`w-6 h-6 group-hover:scale-110 transition-all ${historyTab === "tournaments" ? "text-neon-purple" : "text-gray-400 group-hover:text-neon-purple"}`} />
+              <span className={`font-bold text-lg ${historyTab === "tournaments" ? "text-white" : "text-gray-300 group-hover:text-white"}`}>Tournaments</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-neon-purple" />
+            <ChevronRight className={`w-5 h-5 ${historyTab === "tournaments" ? "text-neon-purple" : "text-gray-500 group-hover:text-neon-purple"}`} />
+          </button>
+
+          <button 
+            onClick={() => setHistoryTab("payments")}
+            className={`w-full group relative flex items-center justify-between p-6 rounded-xl transition-all ${
+              historyTab === "payments" 
+                ? "bg-neon-green/10 border border-neon-green/30 glow-green" 
+                : "glass-panel hover:border-neon-green/30 hover:bg-neon-green/5"
+            }`}
+          >
+            <div className="flex items-center space-x-4">
+              <CreditCard className={`w-6 h-6 group-hover:scale-110 transition-all ${historyTab === "payments" ? "text-neon-green" : "text-gray-400 group-hover:text-neon-green"}`} />
+              <span className={`font-bold text-lg ${historyTab === "payments" ? "text-white" : "text-gray-300 group-hover:text-white"}`}>Payments</span>
+            </div>
+            <ChevronRight className={`w-5 h-5 ${historyTab === "payments" ? "text-neon-green" : "text-gray-500 group-hover:text-neon-green"}`} />
           </button>
         </div>
 
-        {/* History Table */}
+        {/* History Tables with Tabs */}
         <div className="col-span-1 lg:col-span-2">
           <div className="glass-panel rounded-2xl border border-gaming-border p-6 h-full">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold flex items-center space-x-2">
-                <History className="w-5 h-5 text-neon-cyan" />
-                <span>Purchase History</span>
-              </h2>
-            </div>
             
             <div className="overflow-x-auto rounded-lg border border-white/5 bg-black/20">
-              <table className="w-full min-w-[600px] text-left text-sm whitespace-nowrap">
-                <thead className="bg-white/5 text-gray-400 border-b border-white/10 uppercase font-mono text-xs">
-                  <tr>
-                    <th className="px-6 py-4 font-semibold tracking-wider">Transaction</th>
-                    <th className="px-6 py-4 font-semibold tracking-wider">Date</th>
-                    <th className="px-6 py-4 font-semibold tracking-wider">Amount</th>
-                    <th className="px-6 py-4 font-semibold tracking-wider">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5 bg-transparent">
-                  {HISTORY_DATA.map((tx) => (
-                    <motion.tr 
-                      key={tx.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="hover:bg-white/5 transition-colors"
-                    >
-                      <td className="px-6 py-4 font-medium text-white">{tx.type}</td>
-                      <td className="px-6 py-4 text-gray-400">{tx.date}</td>
-                      <td className={`px-6 py-4 font-mono font-bold ${tx.amount.startsWith('+') ? 'text-neon-green' : 'text-gray-300'}`}>
-                        {tx.amount}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded-full text-xs font-medium bg-neon-green/10 text-neon-green border border-neon-green/20">
-                          {tx.status}
-                        </span>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
+              {/* Credits History */}
+              {historyTab === "credits" && (
+                <table className="w-full min-w-[600px] text-left text-sm whitespace-nowrap">
+                  <thead className="bg-white/5 text-gray-400 border-b border-white/10 uppercase font-mono text-xs">
+                    <tr>
+                      <th className="px-6 py-4 font-semibold tracking-wider">Transaction</th>
+                      <th className="px-6 py-4 font-semibold tracking-wider">Date</th>
+                      <th className="px-6 py-4 font-semibold tracking-wider">Amount</th>
+                      <th className="px-6 py-4 font-semibold tracking-wider">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5 bg-transparent">
+                    {CREDITS_HISTORY.map((tx) => (
+                      <motion.tr 
+                        key={tx.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="hover:bg-white/5 transition-colors"
+                      >
+                        <td className="px-6 py-4 font-medium text-white">
+                          <div className="flex items-center space-x-2">
+                            {tx.amount.startsWith('+') ? <ArrowDownLeft className="w-4 h-4 text-neon-green" /> : <ArrowUpRight className="w-4 h-4 text-red-400" />}
+                            <span>{tx.type}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-gray-400">{tx.date}</td>
+                        <td className={`px-6 py-4 font-mono font-bold ${tx.amount.startsWith('+') ? 'text-neon-green' : 'text-red-400'}`}>
+                          {tx.amount}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-neon-green/10 text-neon-green border border-neon-green/20">
+                            {tx.status}
+                          </span>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+
+              {/* Tournaments History */}
+              {historyTab === "tournaments" && (
+                <table className="w-full min-w-[600px] text-left text-sm whitespace-nowrap">
+                  <thead className="bg-white/5 text-gray-400 border-b border-white/10 uppercase font-mono text-xs">
+                    <tr>
+                      <th className="px-6 py-4 font-semibold tracking-wider">Tournament</th>
+                      <th className="px-6 py-4 font-semibold tracking-wider">Date</th>
+                      <th className="px-6 py-4 font-semibold tracking-wider">Placement</th>
+                      <th className="px-6 py-4 font-semibold tracking-wider">Prize</th>
+                      <th className="px-6 py-4 font-semibold tracking-wider">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5 bg-transparent">
+                    {TOURNAMENT_HISTORY.map((t) => (
+                      <motion.tr 
+                        key={t.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="hover:bg-white/5 transition-colors"
+                      >
+                        <td className="px-6 py-4 font-medium text-white">
+                          <div className="flex items-center space-x-2">
+                            <Swords className="w-4 h-4 text-neon-purple" />
+                            <span>{t.name}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-gray-400">{t.date}</td>
+                        <td className="px-6 py-4">
+                          <span className={`font-mono font-black ${
+                            t.placement === '#2' ? 'text-neon-cyan' : t.placement === '#5' ? 'text-gray-400' : 'text-gray-500'
+                          }`}>{t.placement}</span>
+                        </td>
+                        <td className="px-6 py-4 font-bold text-white">{t.prize}</td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                            t.status === 'Finished' 
+                              ? 'bg-neon-green/10 text-neon-green border-neon-green/20' 
+                              : 'bg-neon-cyan/10 text-neon-cyan border-neon-cyan/20'
+                          }`}>
+                            {t.status}
+                          </span>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+
+              {/* Payments History */}
+              {historyTab === "payments" && (
+                <table className="w-full min-w-[600px] text-left text-sm whitespace-nowrap">
+                  <thead className="bg-white/5 text-gray-400 border-b border-white/10 uppercase font-mono text-xs">
+                    <tr>
+                      <th className="px-6 py-4 font-semibold tracking-wider">Description</th>
+                      <th className="px-6 py-4 font-semibold tracking-wider">Date</th>
+                      <th className="px-6 py-4 font-semibold tracking-wider">Method</th>
+                      <th className="px-6 py-4 font-semibold tracking-wider">Amount</th>
+                      <th className="px-6 py-4 font-semibold tracking-wider">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5 bg-transparent">
+                    {PAYMENT_HISTORY.map((p) => (
+                      <motion.tr 
+                        key={p.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="hover:bg-white/5 transition-colors"
+                      >
+                        <td className="px-6 py-4 font-medium text-white">
+                          <div className="flex items-center space-x-2">
+                            <CreditCard className="w-4 h-4 text-neon-cyan" />
+                            <span>{p.type}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-gray-400">{p.date}</td>
+                        <td className="px-6 py-4 text-gray-300 font-mono text-xs">{p.method}</td>
+                        <td className="px-6 py-4 font-mono font-bold text-white">{p.amount}</td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                            p.status === 'Success' 
+                              ? 'bg-neon-green/10 text-neon-green border-neon-green/20' 
+                              : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                          }`}>
+                            {p.status}
+                          </span>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         </div>

@@ -1,11 +1,14 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Gamepad2, Play, Camera, Send, Mail, MapPin, Phone } from "lucide-react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const pathname = usePathname();
+
+  if (pathname === '/admin') return null;
 
   return (
     <footer className="bg-gaming-bg pt-24 pb-12 border-t border-white/5 overflow-hidden">
@@ -44,7 +47,7 @@ export default function Footer() {
           <div className="space-y-6">
             <h4 className="text-white font-bold uppercase tracking-widest text-sm italic">Navigation</h4>
             <ul className="space-y-4">
-              {['Home', 'Packages', 'Tournaments', 'Leaderboard', 'News'].map((link) => (
+              {['Home', 'Packages', 'Tournaments', 'Leaderboard', 'Contact'].map((link) => (
                 <li key={link}>
                   <Link 
                     href={link === 'Home' ? '/' : `/${link.toLowerCase()}`} 

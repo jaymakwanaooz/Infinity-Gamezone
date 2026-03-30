@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Coins, History, Trophy, CreditCard, ChevronRight, X } from "lucide-react";
+import { Coins, History, Trophy, CreditCard, ChevronRight, X, Clock, Star, Gamepad2 } from "lucide-react";
 
 const HISTORY_DATA = [
   { id: "TX1204", date: "Oct 24, 2026", type: "Top-up +500", amount: "+500 C", status: "Completed" },
@@ -23,7 +23,8 @@ export default function Dashboard() {
   return (
     <div className="space-y-10 relative">
       {/* Header & Ledger */}
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-gaming-border">
+      {/* Header & Stats Grid */}
+      <header className="space-y-6 pb-6 border-b border-gaming-border">
         <div>
           <h1 className="text-4xl font-black tracking-wider text-white">
             USER <span className="text-neon-cyan text-glow-cyan">COMMAND</span>
@@ -31,27 +32,87 @@ export default function Dashboard() {
           <p className="text-gray-400 mt-2 font-medium">Review your progression, stats, and top up your credits.</p>
         </div>
         
-        {/* Animated Credit Ledger */}
-        <motion.div 
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="glass-panel p-5 rounded-2xl border border-neon-cyan/30 flex items-center space-x-6 min-w-[280px]"
-        >
-          <div className="bg-neon-cyan/20 p-4 rounded-full glow-cyan">
-            <Coins className="w-8 h-8 text-neon-cyan" />
-          </div>
-          <div>
-            <p className="text-sm text-neon-cyan/80 font-bold tracking-widest uppercase mb-1">Available Balance</p>
-            <motion.div 
-              key={credits}
-              initial={{ scale: 1.2, color: "#fff" }}
-              animate={{ scale: 1, color: "#fff" }}
-              className="text-4xl font-mono font-black text-white"
-            >
-              C {credits.toLocaleString()}
-            </motion.div>
-          </div>
-        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Animated Credit Ledger */}
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="glass-panel p-5 rounded-2xl border border-neon-cyan/30 flex items-center space-x-4 group hover:border-neon-cyan/60 transition-colors"
+          >
+            <div className="bg-neon-cyan/20 p-3 rounded-xl glow-cyan group-hover:bg-neon-cyan/30 transition-colors">
+              <Coins className="w-6 h-6 text-neon-cyan" />
+            </div>
+            <div>
+              <p className="text-xs text-neon-cyan/80 font-bold tracking-widest uppercase mb-1">Balance</p>
+              <motion.div 
+                key={credits}
+                initial={{ scale: 1.2, color: "#fff" }}
+                animate={{ scale: 1, color: "#fff" }}
+                className="text-2xl font-mono font-black text-white"
+              >
+                C {credits.toLocaleString()}
+              </motion.div>
+            </div>
+          </motion.div>
+
+          {/* Loyalty Points */}
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="glass-panel p-5 rounded-2xl border border-neon-purple/30 flex flex-col justify-center space-y-2 group hover:border-neon-purple/60 transition-colors"
+          >
+            <div className="flex items-center space-x-3">
+              <div className="bg-neon-purple/20 p-2 rounded-lg glow-purple">
+                <Star className="w-5 h-5 text-neon-purple mt-0.5" />
+              </div>
+              <div>
+                <p className="text-xs text-neon-purple/80 font-bold tracking-widest uppercase">Loyalty Points</p>
+                <div className="text-lg font-mono font-black text-white">4,250 <span className="text-xs font-sans text-gray-400 font-medium ml-1">/ 5,000 (Silver)</span></div>
+              </div>
+            </div>
+            <div className="w-full bg-white/10 rounded-full h-1.5 mt-2">
+               <div className="bg-neon-purple h-1.5 rounded-full glow-purple transition-all duration-1000" style={{ width: '85%' }}></div>
+            </div>
+          </motion.div>
+
+          {/* Time Played */}
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="glass-panel p-5 rounded-2xl border border-neon-green/30 flex items-center space-x-4 group hover:border-neon-green/60 transition-colors"
+          >
+            <div className="bg-neon-green/20 p-3 rounded-xl glow-green group-hover:bg-neon-green/30 transition-colors">
+              <Clock className="w-6 h-6 text-neon-green" />
+            </div>
+            <div>
+              <p className="text-xs text-neon-green/80 font-bold tracking-widest uppercase mb-1">Time Played</p>
+              <div className="text-2xl font-mono font-black text-white">142<span className="text-sm font-sans text-gray-400 ml-1">Hrs</span></div>
+            </div>
+          </motion.div>
+
+          {/* Favorite Games */}
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="glass-panel p-5 rounded-2xl border border-white/10 flex items-center space-x-4 group hover:border-white/30 transition-colors"
+          >
+            <div className="bg-white/5 p-3 rounded-xl group-hover:bg-white/10 transition-colors">
+              <Gamepad2 className="w-6 h-6 text-gray-300" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-400 font-bold tracking-widest uppercase mb-1">Top Games</p>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs font-bold bg-white/10 px-2 py-1 rounded text-white border border-white/5">CS2</span>
+                <span className="text-xs font-bold bg-white/10 px-2 py-1 rounded text-white border border-white/5">VAL</span>
+                <span className="text-xs font-bold bg-white/10 px-2 py-1 rounded text-white border border-white/5">RL</span>
+              </div>
+            </div>
+          </motion.div>
+
+        </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

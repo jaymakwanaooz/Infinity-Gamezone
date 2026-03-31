@@ -123,6 +123,7 @@ export default function PackagesPage() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<any>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "upi">("card");
   const [error, setError] = useState("");
 
   const handlePackageClick = (pkg: any) => {
@@ -347,17 +348,52 @@ export default function PackagesPage() {
                    </ul>
                 </div>
                 
-                <div className="space-y-4 mb-8">
-                  <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest border-b border-white/10 pb-2">Payment Source</h4>
-                  <input type="text" placeholder="Cardholder Name" defaultValue="ALEX MERCER" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-neon-purple transition-colors" />
-                  <div className="relative">
-                    <input type="text" placeholder="0000 0000 0000 0000" defaultValue="4111 1111 1111 1111" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-mono focus:outline-none focus:border-neon-purple transition-colors" />
-                    <CreditCard className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <div className="space-y-6 mb-8">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Payment Source</h4>
+                    <div className="flex bg-black/40 p-1 rounded-lg border border-white/5">
+                      <button 
+                        onClick={() => setPaymentMethod("card")}
+                        className={`px-4 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'card' ? 'bg-neon-purple text-white glow-purple' : 'text-gray-500 hover:text-gray-300'}`}
+                      >
+                        Card
+                      </button>
+                      <button 
+                        onClick={() => setPaymentMethod("upi")}
+                        className={`px-4 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'upi' ? 'bg-neon-purple text-white glow-purple' : 'text-gray-500 hover:text-gray-300'}`}
+                      >
+                        UPI
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex gap-4">
-                    <input type="text" placeholder="MM/YY" defaultValue="12/28" className="w-1/2 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-mono focus:outline-none focus:border-neon-purple transition-colors" />
-                    <input type="text" placeholder="CVV" defaultValue="123" className="w-1/2 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-mono focus:outline-none focus:border-neon-purple transition-colors" />
-                  </div>
+
+                  {paymentMethod === "card" ? (
+                    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                      <input type="text" placeholder="Enter Name" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-neon-purple transition-colors" />
+                      <div className="relative">
+                        <input type="text" placeholder="Card Number" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-mono focus:outline-none focus:border-neon-purple transition-colors" />
+                        <CreditCard className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                      </div>
+                      <div className="flex gap-4">
+                        <input type="text" placeholder="Expiry Date" className="w-1/2 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-mono focus:outline-none focus:border-neon-purple transition-colors" />
+                        <input type="text" placeholder="CVV" className="w-1/2 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-mono focus:outline-none focus:border-neon-purple transition-colors" />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                      <input type="text" placeholder="Enter Name" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-neon-purple transition-colors" />
+                      <div className="relative">
+                        <input type="text" placeholder="Enter UPI ID" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-mono focus:outline-none focus:border-neon-purple transition-colors" />
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-neon-purple tracking-widest border border-neon-purple/30 px-1.5 py-0.5 rounded">UPI ID</div>
+                      </div>
+                      <div className="p-4 rounded-xl bg-neon-purple/5 border border-neon-purple/10 flex items-start space-x-3">
+                        <ShieldCheck className="w-5 h-5 text-neon-purple shrink-0" />
+                        <p className="text-[10px] text-gray-400 leading-relaxed uppercase tracking-tight">
+                          Please ensure you have your UPI app open on your mobile device to approve the request after hitting confirm.
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="flex space-x-4">

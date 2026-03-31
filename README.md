@@ -20,10 +20,11 @@
 - **VR Arena**: Fully wireless, large-scale VR tracking systems for total immersion.
 
 ### 🔐 Authentication System
-- **Login / Register**: Tabbed access terminal with login and registration flows.
-- **Credential Validation**: Username & password validation with error messages.
+- **Integrated Access Terminal**: In-place login and registration flows that preserve the dashboard layout.
+- **Auth Shell Integration**: No more floating modals — auth fields are seamlessly embedded within the command center.
+- **Credential Validation**: Username & password validation with custom error state animations.
 - **Persistent Sessions**: Global auth state via React Context API + localStorage.
-- **Test Credentials**: Username: `user` / Password: `user`
+- **Empty Credentials**: All fields are now un-filled by default for a realistic, professional login experience.
 
 ### 📊 User Dashboard
 - **Welcome Header**: Personalized greeting with the logged-in username.
@@ -45,7 +46,9 @@
 - **Hourly Tiers**: Standard, Pro, and VIP booth pricing.
 - **Night Owl Pass**: Exclusive night-long gaming access.
 - **Pro Membership**: Monthly subscriptions with tournament discounts.
-- **Checkout Flow**: Authenticated checkout with cardholder name, card number, expiry, and CVV fields.
+- **Multi-Method Checkout**:
+  - 💳 **Credit/Debit Card** — Cardholder, Number, Expiry, CVV.
+  - 📱 **UPI** — Integrated UPI ID and Account Holder fields.
 - **Auth Gate**: Unauthenticated users are prompted to login/signup before purchasing.
 - **Homepage Preview**: Top 2 packages displayed on homepage with "Explore More" CTA.
 
@@ -57,9 +60,11 @@
 - **Homepage Exclusive**: Cinematic joystick logo reveal animation on first load.
 - **Scroll Reset**: All pages scroll to top on navigation/reload.
 
-### 🗺️ Contact & Map
-- **Interactive Map**: Embedded location finder for the gaming center.
-- **Contact Info**: Address, phone, and social links in the footer.
+### 🗺️ Dynamic Interface Improvements
+- **Interactive Game Grid**: Smooth, staggered expansion for the "Top Titles" section using `framer-motion` spring physics.
+- **Aesthetic Density**: Optimized padding and layout spacing in the Dashboard and Footer for a professional, space-efficient feel.
+- **Interactive States**: Hover effects, glow animations, and responsive interactive elements across all modules.
+- **Contact & Map**: Embedded location finder and social connectivity.
 
 ---
 
@@ -123,12 +128,9 @@ src/
 
 ---
 
-## 🔑 Test Credentials
-
-| Field | Value |
-|-------|-------|
-| Username | `user` |
-| Password | `user` |
+## 🔑 Auth Policy
+- **Initialize**: Use the 'Register' tab to create a new session.
+- **Fields**: All authentication fields are empty by default to ensure a clean state upon entry.
 
 ---
 

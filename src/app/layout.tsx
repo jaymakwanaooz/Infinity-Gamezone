@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import CustomCursor from "@/components/CustomCursor";
 import { AuthProvider } from "@/context/AuthContext";
 
 const inter = Inter({
@@ -23,6 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased dark`}>
       <body className="min-h-full flex flex-col bg-gaming-bg text-white font-sans overflow-x-hidden selection:bg-neon-cyan selection:text-black">
+        <CustomCursor />
         <Navbar />
         <AuthProvider>
           {children}

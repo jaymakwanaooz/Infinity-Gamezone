@@ -23,6 +23,17 @@ body {
   overflow-x: hidden;
 }
 
+@media (pointer: fine) {
+  body, 
+  a, 
+  button, 
+  input, 
+  textarea, 
+  [role="button"] {
+    cursor: none !important;
+  }
+}
+
 @utility glow-cyan {
   box-shadow: 0 0 15px rgba(0, 243, 255, 0.4), 0 0 30px rgba(0, 243, 255, 0.2);
 }

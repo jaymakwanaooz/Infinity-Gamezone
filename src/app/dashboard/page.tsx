@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Coins, History, Trophy, CreditCard, ChevronRight, X, Clock, Star, Gamepad2, UserPlus, Swords, ArrowUpRight, ArrowDownLeft } from "lucide-react";
+import { Coins, History, Trophy, CreditCard, ChevronRight, X, Clock, Star, Gamepad2, UserPlus, Swords, ArrowUpRight, ArrowDownLeft, ShieldCheck, CheckCircle2, XCircle, Activity } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 
@@ -14,7 +14,7 @@ const CREDITS_HISTORY = [
 ];
 
 const TOURNAMENT_HISTORY = [
-  { id: "TN1001", name: "Valorant Open S3", date: "Sep 15, 2026", placement: "#2", prize: "₹20,000", status: "Finished" },
+  { id: "TN1001", name: "Valorant Open S3", date: "Sep 15, 2026", placement: "#2", prize: "C 20,000", status: "Finished" },
   { id: "TN1002", name: "CS2 Weekly Cup #8", date: "Aug 28, 2026", placement: "#5", prize: "—", status: "Finished" },
   { id: "TN1003", name: "Valorant Open S4", date: "April 15, 2024", placement: "—", prize: "—", status: "Registered" },
 ];
@@ -26,18 +26,145 @@ const PAYMENT_HISTORY = [
   { id: "PY2004", date: "Aug 05, 2026", method: "UPI — user@paytm", amount: "₹2,000", type: "Top-up", status: "Refunded" },
 ];
 
+const ACTIVITY_DATA = [
+  4, 6, 3, 7, 2, 8, 4, 1, 5, 6, 2, 4, 3, 7, 5, 8, 6, 4, 2, 8, 3, 5, 6, 4, 7, 3, 5, 8, 4, 6
+];
+
+function ActivityGraph() {
+  const points = ACTIVITY_DATA.map((h, i) => `${(i * 30)} ${100 - (h * 10)}`).join(" L ");
+  const linePath = `M ${points}`;
+  const areaPath = `M ${points} L 870 100 L 0 100 Z`;
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.4 }}
+      className="glass-panel p-8 rounded-2xl border border-white/5 space-y-6 overflow-hidden relative group"
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+      
+      <div className="flex items-center justify-between relative">
+        <div className="flex items-center space-x-4">
+          <div className="p-3 bg-neon-cyan/10 rounded-xl border border-neon-cyan/20">
+            <Activity className="w-6 h-6 text-neon-cyan" />
+          </div>
+          <div>
+             <h4 className="text-sm font-black text-white uppercase tracking-widest leading-none mb-1">SYSTEM ACTIVITY TERMINAL</h4>
+             <p className="text-[10px] text-gray-500 font-bold uppercase tracking-tight">Active synchronization with gaming node infinity-gz-01</p>
+          </div>
+        </div>
+        <div className="flex items-center space-x-6">
+          <div className="hidden md:flex flex-col items-end">
+             <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Total Playtime</span>
+             <span className="text-sm font-mono font-black text-white">142.5 HRS</span>
+          </div>
+          <div className="text-right">
+            <span className="text-[10px] font-black bg-neon-cyan/10 text-neon-cyan border border-neon-cyan/30 px-3 py-1 rounded-full uppercase glow-cyan tracking-widest">LAST 30 DAYS</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="h-48 w-full relative pt-4">
+        {/* Y Axis Markers */}
+        <div className="absolute inset-x-0 h-full flex flex-col justify-between pointer-events-none text-[8px] font-black text-gray-600 font-mono tracking-tighter select-none uppercase z-10">
+          <span className="flex items-center gap-2"><div className="w-4 h-[1px] bg-white/10" /> 8H PEAK</span>
+          <span className="flex items-center gap-2"><div className="w-4 h-[1px] bg-white/10" /> 4H MID</span>
+          <span className="flex items-center gap-2"><div className="w-4 h-[1px] bg-white/10" /> 0H IDLE</span>
+        </div>
+
+        <svg viewBox="0 0 870 100" className="w-full h-full preserve-3d" preserveAspectRatio="none">
+          {/* Grid lines */}
+          <line x1="0" y1="50" x2="870" y2="50" stroke="white" strokeOpacity="0.03" strokeDasharray="4 4" />
+          <line x1="0" y1="0" x2="870" y2="0" stroke="white" strokeOpacity="0.02" />
+          
+          {/* Vertical separators */}
+          {[...Array(6)].map((_, i) => (
+             <line key={i} x1={(i+1) * 145} y1="0" x2={(i+1) * 145} y2="100" stroke="white" strokeOpacity="0.02" />
+          ))}
+
+          {/* Gradient definitions */}
+          <defs>
+            <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#00f3ff" stopOpacity="0.25" />
+              <stop offset="100%" stopColor="#00f3ff" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+
+          {/* Area Fill */}
+          <motion.path
+            d={areaPath}
+            fill="url(#areaGradient)"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.5, delay: 0.8 }}
+          />
+
+          {/* Animated Line */}
+          <motion.path
+            d={linePath}
+            fill="none"
+            stroke="#00f3ff"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 1 }}
+            transition={{ duration: 3, ease: "easeInOut", delay: 0.5 }}
+            style={{
+              filter: "drop-shadow(0 0 12px rgba(0,243,255,0.8))",
+            }}
+          />
+        </svg>
+
+        {/* X Axis Labels */}
+        <div className="flex justify-between items-center mt-4 text-[10px] font-bold text-gray-400 font-mono uppercase tracking-wider select-none border-t border-white/5 pt-3">
+          <span>24-09</span>
+          <span>29-09</span>
+          <span>04-10</span>
+          <span>09-10</span>
+          <span>14-10</span>
+          <span>19-10</span>
+          <span>24-10</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative pt-10">
+         <div className="bg-black/20 p-4 rounded-xl border border-white/5 group-hover:border-neon-cyan/20 transition-all duration-300">
+            <span className="block text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1">Average Session</span>
+            <span className="text-lg font-mono font-black text-white italic">4.8 <span className="text-[10px] text-gray-400 font-sans roman">HRS</span></span>
+         </div>
+         <div className="bg-black/20 p-4 rounded-xl border border-white/5 group-hover:border-neon-purple/20 transition-all duration-300">
+            <span className="block text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1">Peak Intensity</span>
+            <span className="text-lg font-mono font-black text-white italic">8.0 <span className="text-[10px] text-neon-purple drop-shadow-[0_0_5px_rgba(192,38,211,0.5)] font-sans roman">MAX</span></span>
+         </div>
+         <div className="bg-black/20 p-4 rounded-xl border border-white/5 group-hover:border-neon-green/20 transition-all duration-300">
+            <span className="block text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1">Consistency</span>
+            <span className="text-lg font-mono font-black text-white italic">92 <span className="text-[10px] text-neon-green font-sans roman">%</span></span>
+         </div>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function Dashboard() {
-  const { isLoggedIn, username, login, logout } = useAuth();
+  const { isLoggedIn, username, credits, addCredits, login, logout } = useAuth();
   const [error, setError] = useState("");
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
-  const [credits, setCredits] = useState(1450);
   const [showTopUpModal, setShowTopUpModal] = useState(false);
-  const [amount, setAmount] = useState(500);
+  const [topupStatus, setTopupStatus] = useState<"idle" | "success" | "error">("idle");
+  const [amount, setAmount] = useState(105);
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "upi">("card");
   const [historyTab, setHistoryTab] = useState<"credits" | "tournaments" | "payments">("credits");
 
   const handleTopup = () => {
-    setCredits((prev) => prev + amount);
+    addCredits(amount);
+    setTopupStatus("success");
+  };
+
+  const closeTopUpModal = () => {
     setShowTopUpModal(false);
+    setTimeout(() => setTopupStatus("idle"), 300);
   };
 
   const handleLogin = (e: React.FormEvent) => {
@@ -107,48 +234,37 @@ export default function Dashboard() {
 
         {isLoggedIn && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Animated Credit Ledger */}
+            {/* Animated Credit Ledger (Expanded) */}
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="glass-panel p-5 rounded-2xl border border-neon-cyan/30 flex items-center space-x-4 group hover:border-neon-cyan/60 transition-colors"
+              className="glass-panel p-6 rounded-2xl border border-neon-cyan/30 flex items-center justify-between col-span-1 md:col-span-2 group hover:border-neon-cyan/60 transition-all duration-300"
             >
-              <div className="bg-neon-cyan/20 p-3 rounded-xl glow-cyan group-hover:bg-neon-cyan/30 transition-colors">
-                <Coins className="w-6 h-6 text-neon-cyan" />
-              </div>
-              <div>
-                <p className="text-xs text-neon-cyan/80 font-bold tracking-widest uppercase mb-1">Balance</p>
-                <motion.div
-                  key={credits}
-                  initial={{ scale: 1.2, color: "#fff" }}
-                  animate={{ scale: 1, color: "#fff" }}
-                  className="text-2xl font-mono font-black text-white"
-                >
-                  C {credits.toLocaleString()}
-                </motion.div>
-              </div>
-            </motion.div>
-
-            {/* Loyalty Points */}
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-              className="glass-panel p-5 rounded-2xl border border-neon-purple/30 flex flex-col justify-center space-y-2 group hover:border-neon-purple/60 transition-colors"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="bg-neon-purple/20 p-2 rounded-lg glow-purple">
-                  <Star className="w-5 h-5 text-neon-purple mt-0.5" />
+              <div className="flex items-center space-x-5">
+                <div className="bg-neon-cyan/20 p-4 rounded-2xl glow-cyan group-hover:bg-neon-cyan/30 transition-colors">
+                  <Coins className="w-8 h-8 text-neon-cyan" />
                 </div>
                 <div>
-                  <p className="text-xs text-neon-purple/80 font-bold tracking-widest uppercase">Loyalty Points</p>
-                  <div className="text-lg font-mono font-black text-white">4,250 <span className="text-xs font-sans text-gray-400 font-medium ml-1">/ 5,000 (Silver)</span></div>
+                  <p className="text-xs text-neon-cyan/80 font-bold tracking-[0.2em] uppercase mb-1">AVAILABLE CREDITS</p>
+                  <motion.div
+                    key={credits}
+                    initial={{ scale: 1.2, color: "#fff" }}
+                    animate={{ scale: 1, color: "#fff" }}
+                    className="text-4xl font-mono font-black text-white"
+                  >
+                    C {credits.toLocaleString()}
+                  </motion.div>
                 </div>
               </div>
-              <div className="w-full bg-white/10 rounded-full h-1.5 mt-2">
-                <div className="bg-neon-purple h-1.5 rounded-full glow-purple transition-all duration-1000" style={{ width: '85%' }}></div>
-              </div>
+              
+              <button 
+                onClick={() => setShowTopUpModal(true)}
+                className="px-8 py-4 bg-neon-cyan text-black font-black text-xs tracking-[0.2em] rounded-xl hover:bg-white hover:shadow-[0_0_25px_rgba(0,243,255,0.5)] transition-all active:scale-95 uppercase"
+              >
+                TOP-UP CREDITS
+              </button>
             </motion.div>
+
 
             {/* Time Played */}
             <motion.div
@@ -374,6 +490,11 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+
+          {/* New Expanded Activity Graph */}
+          <div className="col-span-1 lg:col-span-3">
+             <ActivityGraph />
+          </div>
         </div>
       ) : (
         <div className="flex items-center justify-center py-12">
@@ -460,36 +581,145 @@ export default function Dashboard() {
               className="glass-panel p-8 rounded-2xl border border-neon-cyan/50 max-w-sm w-full glow-cyan shadow-xl relative"
             >
               <button
-                onClick={() => setShowTopUpModal(false)}
-                className="absolute top-4 right-4 text-gray-400 hover:text-white"
+                onClick={closeTopUpModal}
+                className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
 
-              <h3 className="text-2xl font-black mb-2 text-white">QUICK TOP-UP</h3>
-              <p className="text-gray-400 text-sm mb-6 pb-4 border-b border-white/10">Select an amount to recharge your account credits instantly via Stripe.</p>
-
-              <div className="space-y-3 mb-8">
-                {[100, 500, 1000, 5000].map((val) => (
-                  <button
-                    key={val}
-                    onClick={() => setAmount(val)}
-                    className={`w-full py-3 rounded-lg font-mono font-bold border transition-all ${amount === val
-                        ? "bg-neon-cyan text-black border-neon-cyan glow-cyan"
-                        : "bg-black/40 text-gray-300 border-white/10 hover:border-neon-cyan/50"
-                      }`}
+              <AnimatePresence mode="wait">
+                {topupStatus === "idle" ? (
+                  <motion.div
+                    key="topup-form"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
                   >
-                    + {val} Credits
-                  </button>
-                ))}
-              </div>
+                    <h3 className="text-2xl font-black mb-2 text-white uppercase tracking-wider">Top-Up Terminal</h3>
+                    <p className="text-gray-400 text-sm mb-6 pb-4 border-b border-white/10">Select a bundle to recharge. Includes bonus credits on higher tiers!</p>
 
-              <button
-                onClick={handleTopup}
-                className="w-full py-4 bg-white text-black font-black text-lg rounded-xl flex justify-center items-center hover:bg-gray-200 transition-colors"
-              >
-                PAY WITH STRIPE
-              </button>
+                    <div className="grid grid-cols-1 gap-3 mb-8">
+                      {[
+                        { c: 105, r: 100 },
+                        { c: 210, r: 200 },
+                        { c: 530, r: 500 },
+                        { c: 1100, r: 1000 },
+                      ].map((tier) => (
+                        <button
+                          key={tier.r}
+                          onClick={() => setAmount(tier.c)}
+                          className={`flex items-center justify-between px-5 py-4 rounded-xl font-mono font-bold border transition-all ${amount === tier.c
+                              ? "bg-neon-cyan text-black border-neon-cyan shadow-[0_0_15px_rgba(0,243,255,0.4)]"
+                              : "bg-black/40 text-gray-300 border-white/10 hover:border-neon-cyan/50 hover:bg-black/60"
+                            }`}
+                        >
+                          <div className="flex items-center space-x-3">
+                             <Coins className={`w-5 h-5 ${amount === tier.c ? 'text-black' : 'text-neon-cyan'}`} />
+                             <span className="text-lg">C {tier.c}</span>
+                          </div>
+                          <span className={`text-xs uppercase tracking-widest ${amount === tier.c ? 'text-black/60' : 'text-gray-500'}`}>₹{tier.r}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="space-y-6 mb-8">
+                        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                          <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Select Payment</h4>
+                          <div className="flex bg-black/40 p-1 rounded-lg border border-white/5">
+                            <button 
+                              onClick={() => setPaymentMethod("card")}
+                              className={`px-4 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'card' ? 'bg-neon-purple text-white glow-purple' : 'text-gray-400 hover:text-gray-200'}`}
+                            >
+                              Card
+                            </button>
+                            <button 
+                              onClick={() => setPaymentMethod("upi")}
+                              className={`px-4 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'upi' ? 'bg-neon-purple text-white glow-purple' : 'text-gray-400 hover:text-gray-200'}`}
+                            >
+                              UPI
+                            </button>
+                          </div>
+                        </div>
+
+                        {paymentMethod === "card" ? (
+                          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <input type="text" placeholder="Enter Name" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-neon-purple transition-colors text-sm" />
+                            <div className="relative">
+                              <input type="text" placeholder="Card Number" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-mono focus:outline-none focus:border-neon-purple transition-colors text-sm" />
+                              <CreditCard className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                            </div>
+                            <div className="flex gap-4">
+                              <input type="text" placeholder="MM/YY" className="w-1/2 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-mono focus:outline-none focus:border-neon-purple transition-colors text-sm" />
+                              <input type="text" placeholder="CVV" className="w-1/2 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-mono focus:outline-none focus:border-neon-purple transition-colors text-sm" />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <input type="text" placeholder="Enter Name" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-neon-purple transition-colors text-sm" />
+                            <div className="relative">
+                              <input type="text" placeholder="Enter UPI ID" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-mono focus:outline-none focus:border-neon-purple transition-colors text-sm" />
+                              <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[8px] font-black text-neon-purple tracking-widest border border-neon-purple/30 px-1 py-0.5 rounded uppercase">Verified</div>
+                            </div>
+                            <div className="p-4 rounded-xl bg-neon-purple/5 border border-neon-purple/10 flex items-start space-x-3">
+                              <ShieldCheck className="w-4 h-4 text-neon-purple shrink-0 mt-0.5" />
+                              <p className="text-[10px] text-gray-400 leading-relaxed uppercase tracking-tight">
+                                Approve the request in your UPI app to complete top-up.
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                    </div>
+
+                    <button
+                      onClick={handleTopup}
+                      className="w-full py-4 bg-neon-purple text-white font-black text-xs tracking-[0.2em] rounded-xl flex justify-center items-center hover:bg-white hover:text-black transition-all duration-300 shadow-[0_0_20px_rgba(192,38,211,0.4)]"
+                    >
+                      PROCEED TO PAY ₹{
+                        amount === 105 ? 100 : 
+                        amount === 210 ? 200 : 
+                        amount === 530 ? 500 : 
+                        amount === 1100 ? 1000 : amount
+                      }
+                    </button>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="topup-success"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="py-6 text-center space-y-6"
+                  >
+                    <div className="flex justify-center">
+                       <div className="relative">
+                          <CheckCircle2 className="w-20 h-20 text-neon-green" />
+                          <motion.div 
+                            initial={{ scale: 0 }} animate={{ scale: 1.5, opacity: 0 }}
+                            transition={{ duration: 1, repeat: Infinity }}
+                            className="absolute inset-0 rounded-full bg-neon-green/20"
+                          />
+                       </div>
+                    </div>
+                    <div>
+                      <h4 className="text-2xl font-black text-white uppercase tracking-wider mb-2">AUTH SUCCESSFUL</h4>
+                      <p className="text-gray-400 text-xs uppercase tracking-widest leading-relaxed">
+                        Credits have been synchronized <br/> with your gaming terminal.
+                      </p>
+                    </div>
+                    
+                    <div className="bg-black/40 border border-white/10 rounded-xl p-4 flex justify-between items-center">
+                       <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Added Amount</span>
+                       <span className="text-xl font-mono font-black text-neon-green">C {amount}</span>
+                    </div>
+
+                    <button
+                      onClick={closeTopUpModal}
+                      className="w-full py-4 bg-white text-black font-black text-xs tracking-[0.2em] rounded-xl flex justify-center items-center hover:bg-neon-cyan hover:shadow-[0_0_20px_rgba(0,243,255,0.4)] transition-all duration-300"
+                    >
+                      RETURN TO DASHBOARD
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           </motion.div>
         )}

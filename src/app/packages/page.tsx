@@ -4,13 +4,14 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import SectionHeading from "@/components/SectionHeading";
-import { Check, Zap, Crown, User, Coffee, ShieldCheck, X, CreditCard } from "lucide-react";
+import { Check, Zap, Crown, User, Coffee, ShieldCheck, X, CreditCard, Coins, CheckCircle2, XCircle, ShoppingBag } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
 const packages = [
   {
     name: "Standard",
-    price: "₹99",
+    price: 99,
     duration: "Per Hour",
     description: "Perfect for casual gaming and social play.",
     color: "blue-500",
@@ -25,7 +26,7 @@ const packages = [
   },
   {
     name: "Pro Elite",
-    price: "₹149",
+    price: 149,
     duration: "Per Hour",
     description: "Built for eSports pros and competitive grinders.",
     color: "neon-cyan",
@@ -42,7 +43,7 @@ const packages = [
   },
   {
     name: "VIP Suite",
-    price: "₹499",
+    price: 499,
     duration: "Per Hour",
     description: "Exclusive private gaming experience with premium service.",
     color: "neon-purple",
@@ -58,7 +59,7 @@ const packages = [
   },
   {
     name: "Casual Drop-In",
-    price: "₹69",
+    price: 69,
     duration: "Per Hour",
     description: "Get in, play a quick match, get out.",
     color: "gray-400",
@@ -72,7 +73,7 @@ const packages = [
   },
   {
     name: "Streamer Pod",
-    price: "₹299",
+    price: 299,
     duration: "Per Hour",
     description: "Soundproof streaming setup with pre-configured OBS & lighting.",
     color: "neon-green",
@@ -87,7 +88,7 @@ const packages = [
   },
   {
     name: "Night Warrior",
-    price: "₹349",
+    price: 349,
     duration: "Full Night",
     description: "The ultimate overnight grinding session from 11 PM to 7 AM.",
     color: "orange-500",
@@ -105,25 +106,25 @@ const memberships = [
   {
     title: "Night Owl Pass",
     time: "10 PM - 8 AM",
-    price: "₹599",
+    price: 599,
     benefits: ["Unlimited PC access", "Free Red Bull", "20% off Food"],
     icon: <Zap className="w-5 h-5 text-neon-cyan" />,
   },
   {
     title: "Pro Member",
     time: "Monthly",
-    price: "₹2,999",
+    price: 2999,
     benefits: ["50 Hours + 10 Bonus", "Tournament Entry Discounts", "Personal Peripheral Locker"],
     icon: <Crown className="w-5 h-5 text-neon-purple" />,
   },
 ];
 
 export default function PackagesPage() {
-  const { isLoggedIn, login } = useAuth();
+  const { isLoggedIn, credits, deductCredits, login } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [purchaseStatus, setPurchaseStatus] = useState<"idle" | "confirming" | "success" | "error">("idle");
   const [selectedPackage, setSelectedPackage] = useState<any>(null);
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "upi">("card");
   const [error, setError] = useState("");
 
   const handlePackageClick = (pkg: any) => {
@@ -131,8 +132,29 @@ export default function PackagesPage() {
     if (!isLoggedIn) {
       setShowAuthModal(true);
     } else {
+      setPurchaseStatus("idle");
       setShowCheckoutModal(true);
     }
+  };
+
+  const handleConfirmPurchase = () => {
+    setPurchaseStatus("confirming");
+  };
+
+  const handleFinalPurchase = () => {
+    if (selectedPackage) {
+      const success = deductCredits(selectedPackage.price);
+      if (success) {
+        setPurchaseStatus("success");
+      } else {
+        setPurchaseStatus("error");
+      }
+    }
+  };
+
+  const closeCheckoutModal = () => {
+    setShowCheckoutModal(false);
+    setTimeout(() => setPurchaseStatus("idle"), 300);
   };
 
   const handleLogin = (e: React.FormEvent) => {
@@ -155,7 +177,7 @@ export default function PackagesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gaming-bg">
+    <div className="min-h-screen bg-gaming-bg text-white">
       <Navbar />
       
       <main className="pt-32 pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -192,7 +214,7 @@ export default function PackagesPage() {
 
               <div className="flex items-baseline space-x-2 mb-10">
                 <span className={`text-6xl font-black tracking-tighter ${pkg.popular ? 'text-neon-cyan drop-shadow-[0_0_10px_rgba(0,243,255,0.4)]' : 'text-white'}`}>
-                  {pkg.price}
+                  C {pkg.price}
                 </span>
                 <span className="text-gray-500 font-mono text-sm">{pkg.duration}</span>
               </div>
@@ -253,37 +275,12 @@ export default function PackagesPage() {
                   </div>
                   <div className="flex flex-col items-center sm:items-end justify-center">
                     <span className="text-sm font-mono text-neon-purple mb-1">{membership.time}</span>
-                    <span className="text-3xl font-black text-white">{membership.price}</span>
+                    <span className="text-3xl font-black text-white">C {membership.price.toLocaleString()}</span>
                   </div>
                 </motion.div>
               ))}
            </div>
         </div>
-
-        {/* Global Features Table */}
-        <section className="mt-32 p-12 glass-panel rounded-3xl border border-white/5 relative overflow-hidden text-center">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-neon-cyan/5 rounded-full blur-3xl pointer-events-none" />
-            <h3 className="text-3xl font-black text-white italic uppercase tracking-tighter mb-4">The Infinity Guarantee</h3>
-            <p className="text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed">
-              Every system is overclocked, every keyboard is mechanical, and every connection is high-speed fiber. 
-              No compromises on your performance.
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-               {[
-                 { icon: <Zap className="w-5 h-5" />, label: "Gigabit Fiber" },
-                 { icon: <User className="w-5 h-5" />, label: "Pro Coaching" },
-                 { icon: <Coffee className="w-5 h-5" />, label: "Gamer Snacks" },
-                 { icon: <ShieldCheck className="w-5 h-5" />, label: "secure storage" }
-               ].map((item, i) => (
-                 <div key={i} className="flex flex-col items-center space-y-3">
-                   <div className="p-3 rounded-full bg-white/5 text-neon-cyan border border-white/10 tracking-widest">
-                     {item.icon}
-                   </div>
-                   <span className="text-xs font-black uppercase text-gray-500 tracking-widest">{item.label}</span>
-                 </div>
-               ))}
-            </div>
-        </section>
 
         {/* Modals */}
         <AnimatePresence>
@@ -322,88 +319,190 @@ export default function PackagesPage() {
                 initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
                 className="glass-panel p-8 rounded-2xl border border-neon-purple/50 max-w-md w-full glow-purple shadow-xl relative"
               >
-                <button onClick={() => setShowCheckoutModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                <button 
+                  onClick={closeCheckoutModal} 
+                  className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+                >
                   <X className="w-6 h-6" />
                 </button>
-                <h3 className="text-2xl font-black mb-2 text-white uppercase tracking-wider">Checkout Details</h3>
-                <p className="text-gray-400 text-sm border-b border-white/10 pb-4 mb-6">Review your selected package and confirm your payment.</p>
-                
-                <div className="bg-white/5 border border-white/10 rounded-xl p-6 mb-8">
-                   <div className="flex justify-between items-start mb-4">
-                     <div>
-                       <h4 className="text-xl font-bold text-white tracking-widest uppercase">{selectedPackage.name}</h4>
-                       <p className="text-gray-400 text-sm">{selectedPackage.duration}</p>
-                     </div>
-                     <span className="text-3xl font-black text-neon-cyan drop-shadow-[0_0_8px_rgba(0,243,255,0.4)]">{selectedPackage.price}</span>
-                   </div>
-                   <ul className="space-y-2 mt-4 pt-4 border-t border-white/10">
-                     {selectedPackage.features.slice(0, 3).map((f: string) => (
-                       <li key={f} className="flex items-start text-sm text-gray-300">
-                         <Check className="w-4 h-4 mr-2 mt-0.5 shrink-0 text-neon-green" /> {f}
-                       </li>
-                     ))}
-                     {selectedPackage.features.length > 3 && (
-                       <li className="text-sm text-gray-500 italic pl-6">+ More premium benefits</li>
-                     )}
-                   </ul>
-                </div>
-                
-                <div className="space-y-6 mb-8">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                    <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Payment Source</h4>
-                    <div className="flex bg-black/40 p-1 rounded-lg border border-white/5">
-                      <button 
-                        onClick={() => setPaymentMethod("card")}
-                        className={`px-4 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'card' ? 'bg-neon-purple text-white glow-purple' : 'text-gray-500 hover:text-gray-300'}`}
-                      >
-                        Card
-                      </button>
-                      <button 
-                        onClick={() => setPaymentMethod("upi")}
-                        className={`px-4 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'upi' ? 'bg-neon-purple text-white glow-purple' : 'text-gray-500 hover:text-gray-300'}`}
-                      >
-                        UPI
-                      </button>
-                    </div>
-                  </div>
 
-                  {paymentMethod === "card" ? (
-                    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                      <input type="text" placeholder="Enter Name" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-neon-purple transition-colors" />
-                      <div className="relative">
-                        <input type="text" placeholder="Card Number" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-mono focus:outline-none focus:border-neon-purple transition-colors" />
-                        <CreditCard className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <AnimatePresence mode="wait">
+                  {purchaseStatus === "idle" ? (
+                    <motion.div
+                      key="checkout-form"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                    >
+                      <h3 className="text-2xl font-black mb-2 text-white uppercase tracking-wider">Checkout with Credits</h3>
+                      <p className="text-gray-400 text-sm border-b border-white/10 pb-4 mb-6">Review your selected package and confirm your purchase.</p>
+                      
+                      <div className="bg-white/5 border border-white/10 rounded-xl p-6 mb-8">
+                         <div className="flex justify-between items-start mb-4">
+                           <div>
+                             <h4 className="text-xl font-bold text-white tracking-widest uppercase">{selectedPackage.name}</h4>
+                             <p className="text-gray-400 text-sm">{selectedPackage.duration}</p>
+                           </div>
+                           <div className="text-right">
+                             <span className="text-3xl font-black text-neon-cyan drop-shadow-[0_0_8px_rgba(0,243,255,0.4)] block">C {selectedPackage.price}</span>
+                             <span className="text-[10px] text-gray-500 font-mono uppercase">Price in Credits</span>
+                           </div>
+                         </div>
+                         <ul className="space-y-2 mt-4 pt-4 border-t border-white/10">
+                           {selectedPackage.features.slice(0, 3).map((f: string) => (
+                             <li key={f} className="flex items-start text-sm text-gray-300">
+                               <Check className="w-4 h-4 mr-2 mt-0.5 shrink-0 text-neon-green" /> {f}
+                             </li>
+                           ))}
+                         </ul>
                       </div>
-                      <div className="flex gap-4">
-                        <input type="text" placeholder="Expiry Date" className="w-1/2 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-mono focus:outline-none focus:border-neon-purple transition-colors" />
-                        <input type="text" placeholder="CVV" className="w-1/2 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-mono focus:outline-none focus:border-neon-purple transition-colors" />
+                      
+                      <div className="space-y-6 mb-8">
+                        <div className="flex items-center justify-between bg-black/40 p-4 rounded-xl border border-white/5">
+                          <div>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Your Balance</p>
+                            <p className="text-xl font-mono font-black text-white">C {credits.toLocaleString()}</p>
+                          </div>
+                          {credits < selectedPackage.price ? (
+                            <div className="text-right">
+                              <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1 shadow-red-500/20">Insufficient Balance</p>
+                              <p className="text-xs font-bold text-red-400">LOW CREDITS</p>
+                            </div>
+                          ) : (
+                            <div className="text-right">
+                               <p className="text-[10px] font-black text-neon-green uppercase tracking-widest mb-1">Status</p>
+                               <p className="text-xs font-bold text-neon-green">READY</p>
+                            </div>
+                          )}
+                        </div>
+
+                        {credits < selectedPackage.price && (
+                          <Link href="/dashboard" className="block text-center p-3 rounded-lg bg-neon-cyan/10 border border-neon-cyan/30 text-neon-cyan text-xs font-black uppercase tracking-widest hover:bg-neon-cyan hover:text-black transition-all">
+                            GO TO DASHBOARD TO TOP UP
+                          </Link>
+                        )}
                       </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                      <input type="text" placeholder="Enter Name" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-neon-purple transition-colors" />
-                      <div className="relative">
-                        <input type="text" placeholder="Enter UPI ID" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-mono focus:outline-none focus:border-neon-purple transition-colors" />
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-neon-purple tracking-widest border border-neon-purple/30 px-1.5 py-0.5 rounded">UPI ID</div>
+                      
+                      <div className="flex space-x-4">
+                        <button onClick={closeCheckoutModal} className="px-6 py-3 border border-white/20 rounded-xl font-bold text-white hover:bg-white/5 transition-colors text-xs uppercase tracking-widest">
+                          Cancel
+                        </button>
+                        <button 
+                          onClick={handleConfirmPurchase} 
+                          disabled={credits < selectedPackage.price}
+                          className={`flex-1 py-3 font-black text-xs tracking-widest rounded-xl flex justify-center items-center transition-all duration-300 shadow-[0_0_15px_rgba(192,38,211,0.5)] space-x-2 ${
+                            credits < selectedPackage.price 
+                              ? "bg-gray-700 text-gray-400 cursor-not-allowed grayscale" 
+                              : "bg-neon-purple text-white hover:bg-white hover:text-black"
+                          }`}
+                        >
+                          <Coins className="w-4 h-4 mr-2" /> <span>PAY WITH CREDITS</span>
+                        </button>
                       </div>
-                      <div className="p-4 rounded-xl bg-neon-purple/5 border border-neon-purple/10 flex items-start space-x-3">
-                        <ShieldCheck className="w-5 h-5 text-neon-purple shrink-0" />
-                        <p className="text-[10px] text-gray-400 leading-relaxed uppercase tracking-tight">
-                          Please ensure you have your UPI app open on your mobile device to approve the request after hitting confirm.
+                    </motion.div>
+                  ) : purchaseStatus === "confirming" ? (
+                    <motion.div
+                      key="checkout-confirm"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      className="py-6 text-center space-y-8"
+                    >
+                      <div className="flex justify-center">
+                         <div className="w-20 h-20 bg-neon-purple/20 rounded-full flex items-center justify-center border border-neon-purple/50 glow-purple">
+                            <ShieldCheck className="w-10 h-10 text-neon-purple" />
+                         </div>
+                      </div>
+                      <div>
+                        <h4 className="text-2xl font-black text-white uppercase tracking-wider mb-2">Confirm Purchase</h4>
+                        <p className="text-gray-400 text-xs uppercase tracking-widest leading-relaxed">
+                          Are you sure you want to spend <br/> <span className="text-neon-cyan font-bold">C {selectedPackage.price}</span> for {selectedPackage.name}?
                         </p>
                       </div>
-                    </div>
+
+                      <div className="flex flex-col space-y-3">
+                        <button
+                          onClick={handleFinalPurchase}
+                          className="w-full py-4 bg-neon-purple text-white font-black text-xs tracking-[0.2em] rounded-xl flex justify-center items-center hover:bg-white hover:text-black transition-all duration-300 shadow-[0_0_20px_rgba(192,38,211,0.4)]"
+                        >
+                          YES, CONFIRM TRANSACTION
+                        </button>
+                        <button
+                          onClick={() => setPurchaseStatus("idle")}
+                          className="w-full py-4 bg-white/5 border border-white/10 text-white font-black text-xs tracking-[0.2em] rounded-xl flex justify-center items-center hover:bg-white/10 transition-all duration-300"
+                        >
+                          NO, GO BACK
+                        </button>
+                      </div>
+                    </motion.div>
+                  ) : purchaseStatus === "success" ? (
+                    <motion.div
+                      key="purchase-success"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="py-6 text-center space-y-6"
+                    >
+                      <div className="flex justify-center">
+                         <div className="relative">
+                            <CheckCircle2 className="w-20 h-20 text-neon-green" />
+                            <motion.div 
+                              initial={{ scale: 0 }} animate={{ scale: 1.5, opacity: 0 }}
+                              transition={{ duration: 1, repeat: Infinity }}
+                              className="absolute inset-0 rounded-full bg-neon-green/20"
+                            />
+                         </div>
+                      </div>
+                      <div>
+                        <h4 className="text-2xl font-black text-white uppercase tracking-wider mb-2">ORDER CONFIRMED</h4>
+                        <p className="text-gray-400 text-xs uppercase tracking-widest leading-relaxed">
+                          Terminal access granted for <br/> {selectedPackage.name}.
+                        </p>
+                      </div>
+                      
+                      <div className="bg-black/40 border border-white/10 rounded-xl p-4 flex justify-between items-center text-left">
+                         <div>
+                            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block">Package</span>
+                            <span className="text-sm font-bold text-white uppercase">{selectedPackage.name}</span>
+                         </div>
+                         <div className="text-right">
+                            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block">Deducted</span>
+                            <span className="text-lg font-mono font-black text-neon-purple">- C {selectedPackage.price}</span>
+                         </div>
+                      </div>
+
+                      <button
+                        onClick={closeCheckoutModal}
+                        className="w-full py-4 bg-neon-cyan text-black font-black text-xs tracking-[0.2em] rounded-xl flex justify-center items-center hover:bg-white hover:shadow-[0_0_20px_rgba(0,243,255,0.4)] transition-all duration-300"
+                      >
+                        START PLAYING
+                      </button>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="purchase-error"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="py-6 text-center space-y-6"
+                    >
+                      <div className="flex justify-center">
+                         <XCircle className="w-20 h-20 text-red-500" />
+                      </div>
+                      <div>
+                        <h4 className="text-2xl font-black text-red-500 uppercase tracking-wider mb-2">TRANSACTION FAILED</h4>
+                        <p className="text-gray-400 text-xs uppercase tracking-widest leading-relaxed">
+                          Your credits could not be processed. <br/> Please check your balance.
+                        </p>
+                      </div>
+                      
+                      <button
+                        onClick={closeCheckoutModal}
+                        className="w-full py-4 bg-white/5 border border-white/10 text-white font-black text-xs tracking-[0.2em] rounded-xl flex justify-center items-center hover:bg-white/10 transition-all duration-300"
+                      >
+                        CLOSE TERMINAL
+                      </button>
+                    </motion.div>
                   )}
-                </div>
-                
-                <div className="flex space-x-4">
-                  <button onClick={() => setShowCheckoutModal(false)} className="px-6 py-3 border border-white/20 rounded-xl font-bold text-white hover:bg-white/5 transition-colors">
-                    Cancel
-                  </button>
-                  <button onClick={() => { alert('Purchase Successful! Redirecting to Dashboard...'); setShowCheckoutModal(false); }} className="flex-1 py-3 bg-neon-purple text-white font-black text-sm tracking-widest rounded-xl flex justify-center items-center hover:bg-white hover:text-black transition-all duration-300 shadow-[0_0_15px_rgba(192,38,211,0.5)] space-x-2">
-                    <CreditCard className="w-5 h-5 mr-2" /> <span>CONFIRM PAYMENT</span>
-                  </button>
-                </div>
+                </AnimatePresence>
               </motion.div>
             </motion.div>
           )}

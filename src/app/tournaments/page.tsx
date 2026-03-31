@@ -15,6 +15,7 @@ const tournaments = [
     prize: "₹50,000",
     teams: "16 / 32 Slots",
     status: "Registration Open",
+    category: "upcoming",
     color: "neon-cyan",
     format: "5v5 • Single Elimination • BO3 Finals",
     schedule: "Check-in: 10:00 AM • Matches Start: 11:00 AM",
@@ -24,12 +25,45 @@ const tournaments = [
     requirements: "Minimum Rank: Gold 2 or above",
   },
   {
+    title: "CS2 Pro Division",
+    image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop",
+    date: "March 28 - April 05",
+    prize: "₹1,00,000",
+    teams: "8 Teams Left",
+    status: "Live Now",
+    category: "ongoing",
+    color: "neon-purple",
+    format: "5v5 • Double Elimination",
+    schedule: "Matches Daily from 4:00 PM",
+    venue: "InfinityGZ Arena — Main Stage",
+    description: "The professional CS2 circuit is live! Watch the best teams in the region battle it out for the massive 1 Lakh prize pool.",
+    rules: ["Official Tournament Rules apply", "Standard Map Pool", "BO3 Series"],
+    requirements: "Invite Only",
+  },
+  {
+    title: "Tekken 8 Clash",
+    image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop",
+    date: "March 31, 2024",
+    prize: "₹15,000",
+    teams: "Ongoing",
+    status: "In Progress",
+    category: "ongoing",
+    color: "neon-green",
+    format: "1v1 • Double Elimination",
+    schedule: "Starts 2:00 PM Today",
+    venue: "InfinityGZ Console Lounge",
+    description: "The first major Tekken 8 LAN at InfinityGZ. High stakes, high intensity fighting game action.",
+    rules: ["All matches BO3 until Finals", "Finals BO5", "Blind pick enabled"],
+    requirements: "Open to all",
+  },
+  {
     title: "CS2 Competitive League",
     image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop",
     date: "May 02, 2024",
     prize: "₹25,000",
     teams: "8 / 16 Slots",
     status: "Early Bird",
+    category: "upcoming",
     color: "neon-purple",
     format: "5v5 • Round Robin Groups → Playoffs",
     schedule: "Check-in: 12:00 PM • Matches Start: 1:00 PM",
@@ -39,12 +73,29 @@ const tournaments = [
     requirements: "Open to all ranks",
   },
   {
+    title: "Dota 2 Winter Cup",
+    image: "https://images.unsplash.com/photo-1542751110-97427bbecf20?q=80&w=2070&auto=format&fit=crop",
+    date: "Feb 10 - Feb 12",
+    prize: "₹40,000",
+    teams: "Completed",
+    status: "Finished",
+    category: "finished",
+    color: "neon-cyan",
+    format: "5v5 • Single Elimination",
+    schedule: "3 Day Event",
+    venue: "Online / InfinityGZ Finals",
+    description: "The annual Winter Cup concluded with a spectacular finale between Team Velocity and Shadow Walkers.",
+    rules: ["Valve standard rules", "Captain's Mode", "No coaching during matches"],
+    requirements: "Registered Teams",
+  },
+  {
     title: "League Masters 2024",
     image: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=1870&auto=format&fit=crop",
     date: "June 10, 2024",
     prize: "₹75,000",
     teams: "2 / 16 Slots",
     status: "Nearly Full",
+    category: "upcoming",
     color: "neon-green",
     format: "5v5 • Double Elimination • BO5 Grand Finals",
     schedule: "Day 1: Groups (10 AM) • Day 2: Playoffs (12 PM)",
@@ -62,13 +113,38 @@ const pastWinners = [
 ];
 
 export default function TournamentsPage() {
+  const [activeCategory, setActiveCategory] = useState("upcoming");
   const [showRegModal, setShowRegModal] = useState(false);
+  const [showScoresModal, setShowScoresModal] = useState(false);
   const [selectedTournament, setSelectedTournament] = useState<string | null>(null);
+  const [selectedScoresTournament, setSelectedScoresTournament] = useState<typeof tournaments[0] | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [teamSize, setTeamSize] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [infoTournament, setInfoTournament] = useState<typeof tournaments[0] | null>(null);
+
+  const GAMERTAGS = [
+    "ViperScale", "NeonGhost", "SniperKing", "AlphaOmega", "Zenith", "QuantumLink",
+    "ShadowStrike", "FireHawk", "VoidWalker", "Cipher77", "RogueOne", "CyberPulse",
+    "TitanPrime", "GlitchMatrix", "BoltRunner", "EchoWave", "NovaStrike", "PixelBeast"
+  ];
+
+  const generateBracket = () => {
+    // Shuffle and pick 8 tags
+    const shuffled = [...GAMERTAGS].sort(() => 0.5 - Math.random());
+    return {
+      quarter: shuffled.slice(0, 8),
+      semi: shuffled.slice(0, 4), // Placeholder winners
+      final: shuffled.slice(0, 2),
+      winner: shuffled[0]
+    };
+  };
+
+  const handleViewScores = (tournament: typeof tournaments[0]) => {
+    setSelectedScoresTournament(tournament);
+    setShowScoresModal(true);
+  };
 
   const TEAM_OPTIONS = [
     { value: "1", label: "Solo" },
@@ -100,67 +176,125 @@ export default function TournamentsPage() {
           subtitle="Compete for Glory"
         />
 
-        {/* Active Tournaments Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-24">
-          {tournaments.map((tournament, index) => (
-            <motion.div
-              key={tournament.title}
-              initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="group glass-panel rounded-3xl overflow-hidden border border-white/5 hover:border-white/20 transition-all duration-500 flex flex-col sm:flex-row h-full"
+        {/* Tab Switcher */}
+        <div className="flex flex-wrap justify-center gap-4 mb-16">
+          {[
+            { id: "ongoing", label: "Ongoing", icon: <Clock className="w-4 h-4" /> },
+            { id: "upcoming", label: "Upcoming", icon: <Calendar className="w-4 h-4" /> },
+            { id: "finished", label: "Finished", icon: <Trophy className="w-4 h-4" /> },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveCategory(tab.id)}
+              className={`px-8 py-3 rounded-full font-black text-xs uppercase tracking-widest transition-all duration-300 flex items-center space-x-2 border ${
+                activeCategory === tab.id 
+                  ? "bg-white text-black border-white glow-white scale-105" 
+                  : "bg-white/5 text-gray-400 border-white/10 hover:border-white/30 hover:text-white"
+              }`}
             >
-              <div className="relative w-full sm:w-2/5 h-48 sm:h-auto overflow-hidden">
-                <Image
-                  src={tournament.image}
-                  alt={tournament.title}
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
+              {tab.icon}
+              <span>{tab.label}</span>
+              {activeCategory === tab.id && (
+                <motion.span 
+                  layoutId="activeTab"
+                  className="w-1.5 h-1.5 rounded-full bg-neon-cyan"
                 />
-                <div className="absolute top-4 left-4">
-                   <span className={`px-3 py-1 rounded bg-black/80 text-[10px] font-bold text-white uppercase tracking-widest border border-white/10`}>
-                      {tournament.status}
-                   </span>
-                </div>
-              </div>
+              )}
+            </button>
+          ))}
+        </div>
 
-              <div className="p-8 sm:w-3/5 flex flex-col justify-between">
-                <div>
-                  <h3 className="text-2xl font-black text-white italic mb-6 uppercase tracking-tighter">{tournament.title}</h3>
-                  <div className="space-y-4 mb-8">
-                    <div className="flex items-center space-x-3 text-sm text-gray-400">
-                      <Calendar className={`w-4 h-4 text-${tournament.color}`} />
-                      <span>{tournament.date}</span>
-                    </div>
-                    <div className="flex items-center space-x-3 text-sm text-gray-400">
-                      <DollarSign className={`w-4 h-4 text-${tournament.color}`} />
-                      <span className="font-bold text-white">Prize Pool: {tournament.prize}</span>
-                    </div>
-                    <div className="flex items-center space-x-3 text-sm text-gray-400">
-                      <Users className={`w-4 h-4 text-${tournament.color}`} />
-                      <span>{tournament.teams}</span>
+        {/* Active Tournaments Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-24 min-h-[400px]">
+          <AnimatePresence mode="wait">
+            {tournaments
+              .filter(t => t.category === activeCategory)
+              .map((tournament, index) => (
+                <motion.div
+                  key={tournament.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  className="group glass-panel rounded-3xl overflow-hidden border border-white/5 hover:border-white/20 transition-all duration-500 flex flex-col sm:flex-row h-full"
+                >
+                  <div className="relative w-full sm:w-2/5 h-48 sm:h-auto overflow-hidden">
+                    <Image
+                      src={tournament.image}
+                      alt={tournament.title}
+                      fill
+                      className={`object-cover transition-transform duration-700 group-hover:scale-110 ${tournament.category === 'finished' ? 'grayscale opacity-60' : ''}`}
+                    />
+                    <div className="absolute top-4 left-4">
+                       <span className={`px-3 py-1 rounded bg-black/80 text-[10px] font-bold text-white uppercase tracking-widest border border-white/10`}>
+                          {tournament.status}
+                       </span>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex gap-3">
-                  <button 
-                    onClick={() => { setInfoTournament(tournament); setShowInfoModal(true); }}
-                    className="py-3 px-4 rounded-lg font-black text-xs uppercase tracking-widest transition-all duration-300 flex items-center justify-center border bg-white/5 text-white border-white/10 hover:border-neon-cyan hover:text-neon-cyan hover:scale-105 active:scale-95"
-                  >
-                    <Info className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={() => handleRegister(tournament.title)}
-                    className="flex-1 py-3 rounded-lg font-black text-xs uppercase tracking-widest transition-all duration-300 flex items-center justify-center space-x-2 border bg-white/5 text-white border-white/10 hover:bg-white hover:text-black hover:scale-105 active:scale-95"
-                  >
-                    <span>REGISTER NOW</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
+                  <div className="p-8 sm:w-3/5 flex flex-col justify-between">
+                    <div>
+                      <h3 className={`text-2xl font-black italic mb-6 uppercase tracking-tighter ${tournament.category === 'finished' ? 'text-gray-500' : 'text-white'}`}>{tournament.title}</h3>
+                      <div className="space-y-4 mb-8">
+                        <div className="flex items-center space-x-3 text-sm text-gray-400">
+                          <Calendar className={`w-4 h-4 text-${tournament.color}`} />
+                          <span>{tournament.date}</span>
+                        </div>
+                        <div className="flex items-center space-x-3 text-sm text-gray-400">
+                          <DollarSign className={`w-4 h-4 text-${tournament.color}`} />
+                          <span className={`${tournament.category === 'finished' ? 'text-gray-500' : 'font-bold text-white'}`}>Prize Pool: {tournament.prize}</span>
+                        </div>
+                        <div className="flex items-center space-x-3 text-sm text-gray-400">
+                          <Users className={`w-4 h-4 text-${tournament.color}`} />
+                          <span>{tournament.teams}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button 
+                        onClick={() => { setInfoTournament(tournament); setShowInfoModal(true); }}
+                        className="py-3 px-4 rounded-lg font-black text-xs uppercase tracking-widest transition-all duration-300 flex items-center justify-center border bg-white/5 text-white border-white/10 hover:border-neon-cyan hover:text-neon-cyan hover:scale-105 active:scale-95"
+                      >
+                        <Info className="w-4 h-4" />
+                      </button>
+                      
+                      {tournament.category === 'upcoming' ? (
+                        <button 
+                          onClick={() => handleRegister(tournament.title)}
+                          className="flex-1 py-3 rounded-lg font-black text-xs uppercase tracking-widest transition-all duration-300 flex items-center justify-center space-x-2 border bg-white/5 text-white border-white/10 hover:bg-white hover:text-black hover:scale-105 active:scale-95"
+                        >
+                          <span>REGISTER NOW</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => handleViewScores(tournament)}
+                          className={`flex-1 py-3 rounded-lg font-black text-xs uppercase tracking-widest transition-all duration-300 flex items-center justify-center space-x-2 border border-white/10 ${
+                            tournament.category === 'ongoing' 
+                              ? 'bg-neon-cyan/10 text-neon-cyan hover:bg-neon-cyan hover:text-black hover:glow-cyan' 
+                              : 'bg-white/5 text-gray-300 hover:bg-white hover:text-black'
+                          } hover:scale-105 active:scale-95`}
+                        >
+                          <span>{tournament.category === 'ongoing' ? 'VIEW LIVE SCORES' : 'VIEW BRACKETS'}</span>
+                          <Trophy className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+          </AnimatePresence>
+          {tournaments.filter(t => t.category === activeCategory).length === 0 && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="col-span-full py-20 text-center glass-panel rounded-3xl border-dashed border-2 border-white/5"
+            >
+              <Trophy className="w-12 h-12 text-gray-700 mx-auto mb-4" />
+              <h3 className="text-xl font-black text-white/20 uppercase italic">No {activeCategory} tournaments found</h3>
             </motion.div>
-          ))}
+          )}
         </div>
 
         {/* Global Stats */}
@@ -465,6 +599,82 @@ export default function TournamentsPage() {
                   </button>
                 </motion.div>
               )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Brackets / Scores Modal */}
+      <AnimatePresence>
+        {showScoresModal && selectedScoresTournament && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+              className="glass-panel p-8 md:p-12 rounded-[40px] border border-white/10 max-w-5xl w-full relative max-h-[90vh] overflow-y-auto"
+            >
+              <button onClick={() => setShowScoresModal(false)} className="absolute top-8 right-8 text-gray-400 hover:text-white transition-colors bg-white/5 p-2 rounded-full">
+                <X className="w-6 h-6" />
+              </button>
+
+              <div className="text-center mb-16">
+                 <div className={`inline-block px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-4 
+                   ${selectedScoresTournament.category === 'ongoing' ? 'bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/30' : 'bg-white/10 text-gray-400 border border-white/10'}`}>
+                   {selectedScoresTournament.category === 'ongoing' ? 'LIVE TOURNAMENT' : 'FINAL RESULTS'}
+                 </div>
+                 <h2 className="text-4xl md:text-5xl font-black text-white italic uppercase tracking-tighter">{selectedScoresTournament.title} Brackets</h2>
+              </div>
+
+              {/* Bracket Tree Visual */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center justify-center relative">
+                 {/* Quarter Finals */}
+                 <div className="space-y-4">
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-8 border-b border-white/5 pb-2">Quarter Finals</h4>
+                    {generateBracket().quarter.map((tag, i) => (
+                      <div key={i} className={`p-4 rounded-xl border flex justify-between items-center bg-white/5 ${i % 2 === 0 ? 'border-l-4 border-l-neon-cyan' : 'border-white/5 opacity-80'}`}>
+                         <span className="text-sm font-bold text-white tracking-wide">{tag}</span>
+                         <span className="text-[10px] font-mono text-gray-500">{Math.floor(Math.random() * 10) + 1}</span>
+                      </div>
+                    ))}
+                 </div>
+
+                 {/* Semi Finals */}
+                 <div className="space-y-12">
+                 <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-8 border-b border-white/5 pb-2">Semi Finals</h4>
+                    {generateBracket().semi.map((tag, i) => (
+                      <div key={i} className={`p-5 rounded-xl border flex justify-between items-center bg-white/10 ${i === 0 ? 'border-neon-purple shadow-[0_0_20px_rgba(180,0,255,0.1)]' : 'border-white/10'}`}>
+                         <span className="text-sm font-bold text-white tracking-wide">{tag}</span>
+                         <span className={`px-2 py-0.5 rounded text-[8px] font-black ${i === 0 ? 'bg-neon-purple text-white' : 'bg-white/20 text-gray-300'}`}>
+                            {i === 0 ? 'WINNER' : 'ELIMINATED'}
+                         </span>
+                      </div>
+                    ))}
+                 </div>
+
+                 {/* Finals */}
+                 <div className="flex flex-col items-center justify-center py-12 px-8 rounded-3xl bg-gradient-to-br from-neon-cyan/5 to-neon-purple/5 border border-white/10">
+                    <Trophy className="w-16 h-16 text-neon-cyan mb-6 drop-shadow-[0_0_15px_rgba(0,243,255,0.5)]" />
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-4">Ultimate Grand Champion</h4>
+                    <div className="text-3xl font-black text-white italic uppercase tracking-tighter mb-2 glow-white">
+                       {generateBracket().winner}
+                    </div>
+                    <div className="text-neon-cyan font-mono text-sm uppercase tracking-widest font-black">
+                       Winner • {selectedScoresTournament.prize}
+                    </div>
+                    
+                    {selectedScoresTournament.category === 'ongoing' && (
+                       <div className="mt-8 px-4 py-2 bg-neon-cyan text-black text-[10px] font-black uppercase tracking-widest animate-pulse">
+                          Match In Progress
+                       </div>
+                    )}
+                 </div>
+              </div>
+
+              <div className="mt-16 pt-8 border-t border-white/5 text-center">
+                 <p className="text-gray-500 text-xs font-medium italic">Updates live every 5 minutes • Standard ESports Rulebook applied</p>
+              </div>
             </motion.div>
           </motion.div>
         )}

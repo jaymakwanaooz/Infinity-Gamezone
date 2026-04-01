@@ -69,7 +69,7 @@ export default function IntroScreen() {
             </motion.div>
             
             {/* Loading Bar */}
-            <div className="w-48 h-1 bg-white/10 mt-4 rounded-full overflow-hidden">
+            <div className="w-56 h-1 bg-white/10 mt-4 rounded-full overflow-hidden">
                <motion.div 
                  initial={{ width: "0%" }}
                  animate={{ width: "100%" }}
@@ -77,6 +77,17 @@ export default function IntroScreen() {
                  className="h-full bg-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.8)] rounded-full"
                />
             </div>
+
+            {/* Desktop Tip */}
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.4, duration: 0.8 }}
+              className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mt-2 flex items-center gap-2"
+            >
+              <span className="w-1 h-1 rounded-full bg-neon-cyan animate-pulse"></span>
+              Tip: Use desktop for the <span className="text-white">ULTIMATE</span> experience
+            </motion.p>
             
           </motion.div>
         </motion.div>

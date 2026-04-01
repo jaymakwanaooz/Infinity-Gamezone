@@ -630,8 +630,8 @@ export default function TournamentsPage() {
               {/* Bracket Tree Visual */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center justify-center relative">
                  {/* Quarter Finals */}
-                 <div className="space-y-4">
-                    <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-8 border-b border-white/5 pb-2">Quarter Finals</h4>
+                  <div className="space-y-4">
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-8 border-b border-white/5 pb-2">Quarter Finals <span className="text-neon-cyan/50 ml-2">— APRIL 10</span></h4>
                     {generateBracket().quarter.map((tag, i) => (
                       <div key={i} className={`p-4 rounded-xl border flex justify-between items-center bg-white/5 ${i % 2 === 0 ? 'border-l-4 border-l-neon-cyan' : 'border-white/5 opacity-80'}`}>
                          <span className="text-sm font-bold text-white tracking-wide">{tag}</span>
@@ -641,8 +641,8 @@ export default function TournamentsPage() {
                  </div>
 
                  {/* Semi Finals */}
-                 <div className="space-y-12">
-                 <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-8 border-b border-white/5 pb-2">Semi Finals</h4>
+                  <div className="space-y-12">
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-8 border-b border-white/5 pb-2">Semi Finals <span className="text-neon-purple/50 ml-2">— APRIL 12</span></h4>
                     {generateBracket().semi.map((tag, i) => (
                       <div key={i} className={`p-5 rounded-xl border flex justify-between items-center bg-white/10 ${i === 0 ? 'border-neon-purple shadow-[0_0_20px_rgba(180,0,255,0.1)]' : 'border-white/10'}`}>
                          <span className="text-sm font-bold text-white tracking-wide">{tag}</span>
@@ -656,7 +656,7 @@ export default function TournamentsPage() {
                  {/* Finals */}
                  <div className="flex flex-col items-center justify-center py-12 px-8 rounded-3xl bg-gradient-to-br from-neon-cyan/5 to-neon-purple/5 border border-white/10">
                     <Trophy className="w-16 h-16 text-neon-cyan mb-6 drop-shadow-[0_0_15px_rgba(0,243,255,0.5)]" />
-                    <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-4">Ultimate Grand Champion</h4>
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-4 text-center">Grand Finals <span className="text-neon-green/50 ml-2">— APRIL 15</span></h4>
                     <div className="text-3xl font-black text-white italic uppercase tracking-tighter mb-2 glow-white">
                        {generateBracket().winner}
                     </div>

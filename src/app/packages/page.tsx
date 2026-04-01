@@ -104,17 +104,23 @@ const packages = [
 
 const memberships = [
   {
+    name: "Night Owl Pass",
     title: "Night Owl Pass",
     time: "10 PM - 8 AM",
     price: 599,
+    duration: "10 PM - 8 AM",
     benefits: ["Unlimited PC access", "Free Red Bull", "20% off Food"],
+    features: ["Unlimited PC access", "Free Red Bull", "20% off Food"],
     icon: <Zap className="w-5 h-5 text-neon-cyan" />,
   },
   {
+    name: "Pro Member",
     title: "Pro Member",
     time: "Monthly",
     price: 2999,
+    duration: "Monthly",
     benefits: ["50 Hours + 10 Bonus", "Tournament Entry Discounts", "Personal Peripheral Locker"],
+    features: ["50 Hours + 10 Bonus", "Tournament Entry Discounts", "Personal Peripheral Locker"],
     icon: <Crown className="w-5 h-5 text-neon-purple" />,
   },
 ];
@@ -213,7 +219,7 @@ export default function PackagesPage() {
               </div>
 
               <div className="flex items-baseline space-x-2 mb-10">
-                <span className={`text-6xl font-black tracking-tighter ${pkg.popular ? 'text-neon-cyan drop-shadow-[0_0_10px_rgba(0,243,255,0.4)]' : 'text-white'}`}>
+                <span className="text-6xl font-black tracking-tighter text-neon-cyan drop-shadow-[0_0_10px_rgba(0,243,255,0.4)]">
                   C {pkg.price}
                 </span>
                 <span className="text-gray-500 font-mono text-sm">{pkg.duration}</span>
@@ -230,11 +236,7 @@ export default function PackagesPage() {
 
               <button 
                 onClick={() => handlePackageClick(pkg)}
-                className={`w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all duration-300 ${
-                pkg.popular 
-                  ? "bg-neon-cyan text-black hover:bg-white hover:glow-cyan" 
-                  : "bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20"
-              }`}>
+                className="w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all duration-300 bg-neon-cyan text-black hover:bg-white hover:glow-cyan shadow-[0_0_20px_rgba(0,243,255,0.3)]">
                 {pkg.cta}
               </button>
             </motion.div>
@@ -273,9 +275,15 @@ export default function PackagesPage() {
                        ))}
                     </div>
                   </div>
-                  <div className="flex flex-col items-center sm:items-end justify-center">
-                    <span className="text-sm font-mono text-neon-purple mb-1">{membership.time}</span>
-                    <span className="text-3xl font-black text-white">C {membership.price.toLocaleString()}</span>
+                  <div className="flex flex-col items-center sm:items-end justify-center w-full sm:w-auto min-w-[140px]">
+                    <span className="text-sm font-mono text-neon-cyan mb-1">{membership.time}</span>
+                    <span className="text-3xl font-black text-white mb-6">C {membership.price.toLocaleString()}</span>
+                    <button 
+                      onClick={() => handlePackageClick(membership)}
+                      className="w-full sm:w-40 py-3 bg-neon-cyan/20 border border-neon-cyan/50 text-neon-cyan text-[10px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-neon-cyan hover:text-black transition-all shadow-lg hover:shadow-neon-cyan/20 whitespace-nowrap"
+                    >
+                      Join Now
+                    </button>
                   </div>
                 </motion.div>
               ))}

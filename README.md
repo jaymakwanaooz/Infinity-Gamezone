@@ -43,9 +43,11 @@
 - **Wall of Fame**: Historical leaderboard of past champions.
 
 ### 💎 Battle Passes & Packages
+- **Unified Visual Language**: All packages now feature a high-energy **Neon Cyan** theme for prices and actions.
+- **Standardized CTAs**: Balanced, wide-form "Join Now" and "Book Now" buttons for a professional marketplace feel.
 - **Hourly Tiers**: Standard, Pro, and VIP booth pricing.
-- **Night Owl Pass**: Exclusive night-long gaming access.
-- **Pro Membership**: Monthly subscriptions with tournament discounts.
+- **Night Owl Pass**: Exclusive night-long gaming access with dedicated "Warrior" perks.
+- **Pro Membership**: Monthly subscriptions with tournament discounts and personal equipment storage.
 - **Multi-Method Checkout**:
   - 💳 **Credit/Debit Card** — Cardholder, Number, Expiry, CVV.
   - 📱 **UPI** — Integrated UPI ID and Account Holder fields.
@@ -53,11 +55,26 @@
 - **Homepage Preview**: Top 2 packages displayed on homepage with "Explore More" CTA.
 
 ### 🔔 Notification System
-- **Notification Bell**: Icon with animated ring indicator in the navbar.
-- **Popup Panel**: Mini overlay showing new tournaments, events, and system upgrade alerts.
+- **Advanced UI Overlay**: High-contrast dropdown with `backdrop-blur-xl` and deep obsidian backgrounds for maximum legibility.
+- **Smart Interactions**: Auto-closes on outside clicks and features professional `AnimatePresence` fade-and-slide transitions.
+- **Real-Time Indicators**: Pulsing ring on the bell icon and "NEW" badge counts within the panel.
+- **Tactical Detailing**: Color-coded category tags (Cyan for Tournaments, Red for Alerts, Purple for Events).
+
+### 🛡️ Tactical Admin Panel
+- **Command Center Dashboard**: Full-featured administrative hub with real-time system stats and audit logs.
+- **Interactive Bracket Management**:
+  - **Dynamic progression**: Administrative control over Quarter Finals, Semi Finals, and Grand Finals.
+  - **Player Control**: Instant "Promote to Next Stage" and "Disqualify" actions for every participant.
+  - **Tournament Lifecycle**: Manage states from `Ongoing` and `Paused` to `Postponed` and `Finished`.
+- **Broadcast Center**: 
+  - **Protocol Alerts**: Push news alerts directly to user notification panels.
+  - **Custom Protocols**: Multiple alert levels (New Event, Tournament, System Upgrade, High Priority).
+  - **Custom Selectors**: Highly stylized, animated category dropdowns for a professional "Mission Control" feel.
+- **User Management**: Monitor online status, track last active sessions, and enforce administrative blocks.
 
 ### 🎬 Intro Animation
 - **Homepage Exclusive**: Cinematic joystick logo reveal animation on first load.
+- **Experience Optimization**: Integrated desktop-usage tips for the ultimate visual experience.
 - **Scroll Reset**: All pages scroll to top on navigation/reload.
 
 ### 🗺️ Dynamic Interface Improvements
@@ -89,6 +106,7 @@ src/
 ├── app/
 │   ├── page.tsx              # Homepage with intro animation
 │   ├── dashboard/page.tsx    # User dashboard with auth gate
+│   ├── admin/page.tsx        # Robust Tactical Admin Panel
 │   ├── packages/page.tsx     # Membership packages & checkout
 │   ├── tournaments/page.tsx  # Tournament listings & registration
 │   ├── leaderboard/page.tsx  # Competitive rankings
@@ -136,7 +154,7 @@ src/
 
 ## 📋 Roadmap
 
-- [ ] Admin Panel for tournament management
+- [x] Admin Panel for tournament management
 - [ ] Backend integration (NextAuth.js, Stripe API)
 - [ ] Real-time notifications via WebSocket
 - [ ] Form validation with Zod

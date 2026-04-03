@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { trackUserActivity, setUserOffline } from "@/app/admin/actions";
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -31,14 +32,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (storedCredits) {
       setCredits(parseInt(storedCredits, 10));
     } else {
-      // Default credits for new/existing users if not set
       setCredits(0);
     }
   }, []);
 
+  // Tracking user activity
+  useEffect(() => {
+    if (isLoggedIn && username) {
+      const heartbeat = setInterval(() => {
+        trackUserActivity(username); 
+      }, 30000); // every 30s
+      
+      return () => clearInterval(heartbeat);
+    }
+  }, [isLoggedIn, username]);
+
   const login = (user: string) => {
     setIsLoggedIn(true);
     setUsername(user);
+    trackUserActivity(user);
     localStorage.setItem("infinitygz_auth", "true");
     localStorage.setItem("infinitygz_user", user);
     
@@ -51,12 +63,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
+    if (username) setUserOffline(username);
     setIsLoggedIn(false);
     setUsername(null);
     localStorage.removeItem("infinitygz_auth");
     localStorage.removeItem("infinitygz_user");
-    // Keep credits in localStorage or clear them? 
-    // Usually credits are tied to account, for demo let's keep them.
   };
 
   const addCredits = (amount: number) => {

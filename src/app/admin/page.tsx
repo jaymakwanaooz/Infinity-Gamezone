@@ -28,8 +28,10 @@ import {
   ChevronRight,
   ShieldX,
   Clock,
-  ChevronDown
+  ChevronDown 
 } from "lucide-react";
+import { getUsers, toggleUserBlock } from "./actions";
+
 
 // Mock Data
 const SYSTEM_STATS = [
@@ -104,17 +106,34 @@ export default function AdminPanel() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [activeTab, setActiveTab] = useState("audit");
-  const [users, setUsers] = useState(INITIAL_USERS);
+  const [users, setUsers] = useState<any[]>([]); // Change from INITIAL_USERS
+  const [loadingUsers, setLoadingUsers] = useState(true);
   const [tournaments, setTournaments] = useState(INITIAL_TOURNAMENTS);
   
   // News Form State
   const [newsForm, setNewsForm] = useState({ title: "", message: "", category: "NEW EVENT" });
   const [newsSuccess, setNewsSuccess] = useState(false);
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadUsers();
+    }
+  }, [isAuthenticated]);
+
+  const loadUsers = async () => {
+    setLoadingUsers(true);
+    const result = await getUsers();
+    if (result.success) {
+      setUsers(result.data || []);
+    }
+    setLoadingUsers(false);
+  };
+
   // Modal State
   const [selectedTournament, setSelectedTournament] = useState<any>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCatDropdownOpen, setIsCatDropdownOpen] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -128,14 +147,47 @@ export default function AdminPanel() {
   };
 
   // User Actions
-  const toggleBlock = (userId: string) => {
-    setUsers(users.map(u => u.id === userId ? { ...u, isBlocked: !u.isBlocked } : u));
+  const toggleBlock = async (userId: string) => {
+    const result = await toggleUserBlock(userId);
+    if (result.success) {
+       // Optimistically update or reload? Let's just update local state.
+       setUsers(users.map(u => u.id === userId ? { ...u, isBlocked: !u.isBlocked } : u));
+    }
+  };
+
+  const formatLastActive = (date: any) => {
+    if (!date) return "Never";
+    try {
+        const d = new Date(date);
+        const diff = Date.now() - d.getTime();
+        if (diff < 60000) return "Just now";
+        if (diff < 3600000) return `${Math.floor(diff/60000)}m ago`;
+        if (diff < 86400000) return `${Math.floor(diff/3600000)}h ago`;
+        return d.toLocaleDateString();
+    } catch(e) { return "Invalid Date"; }
   };
 
   // Tournament Actions
   const handleEditTournament = (updated: any) => {
     setTournaments(tournaments.map(t => t.id === updated.id ? updated : t));
     setIsEditModalOpen(false);
+  };
+
+  const handleCreateTournament = (newData: any) => {
+    const newTournament = {
+      ...newData,
+      id: `T-${Date.now()}`,
+      status: "Upcoming",
+      stage: "Registrations",
+      brackets: {
+        quarter: [],
+        semi: [],
+        final: [],
+        winner: null
+      }
+    };
+    setTournaments([newTournament, ...tournaments]);
+    setIsCreateModalOpen(false);
   };
 
   const handleForwardStage = (tourneyId: string) => {
@@ -567,6 +619,149 @@ export default function AdminPanel() {
     );
   };
 
+  const CreateTournamentModal = ({ onSave, onClose }: any) => {
+    const [formData, setFormData] = useState({ 
+      eventName: "", 
+      gameName: "", 
+      participants: 64, 
+      prizePool: "5,000",
+      format: "Solo",
+      description: "",
+      poster: null as string | null
+    });
+
+    const formats = ["Solo", "Duo", "Trio", "Squad"];
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setFormData({ ...formData, poster: reader.result as string });
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    return (
+      <div className="space-y-8">
+        <div className="space-y-4">
+           <label className="text-sm font-bold text-gray-400 uppercase tracking-widest block">Tournament Poster</label>
+           <div 
+             className={`relative h-48 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer overflow-hidden group ${
+               formData.poster ? 'border-neon-cyan/50' : 'border-white/10 hover:border-neon-cyan/30 bg-black/40'
+             }`}
+           >
+             {formData.poster ? (
+               <>
+                 <img src={formData.poster} alt="Poster Preview" className="absolute inset-0 w-full h-full object-cover opacity-40" />
+                 <div className="relative z-10 flex flex-col items-center">
+                    <CheckCircle className="w-8 h-8 text-neon-cyan mb-2" />
+                    <p className="text-xs font-bold text-white uppercase">Image Loaded</p>
+                    <button onClick={(e) => { e.stopPropagation(); setFormData({...formData, poster: null}) }} className="mt-2 text-[10px] text-red-400 hover:text-red-300 underline font-black uppercase">Remove</button>
+                 </div>
+               </>
+             ) : (
+               <>
+                 <PlusCircle className="w-8 h-8 text-white/20 group-hover:text-neon-cyan/50 transition-colors mb-3" />
+                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider text-center px-4 font-mono">DRAG & DROP POSTER OR CLICK TO UPLOAD</p>
+                 <input 
+                   type="file" 
+                   accept="image/*"
+                   onChange={handleFileChange}
+                   className="absolute inset-0 opacity-0 cursor-pointer"
+                 />
+               </>
+             )}
+           </div>
+        </div>
+
+        <div className="space-y-3">
+          <label className="text-sm font-bold text-gray-400 uppercase tracking-widest block">Tournament Format</label>
+          <div className="flex bg-black/40 p-1.5 rounded-2xl border border-white/5 gap-2">
+            {formats.map((f) => (
+              <button
+                key={f}
+                onClick={() => setFormData({...formData, format: f})}
+                className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${
+                  formData.format === f 
+                    ? 'bg-neon-cyan text-black glow-cyan' 
+                    : 'text-gray-500 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">Tournament Name</label>
+            <input 
+              type="text" 
+              placeholder="e.g. Major Championship 2026"
+              value={formData.eventName}
+              onChange={(e) => setFormData({...formData, eventName: e.target.value})}
+              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-cyan/50"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">Select Game</label>
+            <input 
+              type="text" 
+              placeholder="e.g. Valorant, CS2"
+              value={formData.gameName}
+              onChange={(e) => setFormData({...formData, gameName: e.target.value})}
+              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-cyan/50"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">Prize Pool ($)</label>
+            <input 
+              type="text" 
+              placeholder="e.g. 10,000"
+              value={formData.prizePool}
+              onChange={(e) => setFormData({...formData, prizePool: e.target.value})}
+              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-cyan/50"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">Participants Limit</label>
+            <input 
+              type="number" 
+              value={formData.participants}
+              onChange={(e) => setFormData({...formData, participants: parseInt(e.target.value)})}
+              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-cyan/50"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-bold text-gray-400 uppercase tracking-widest block">Tournament Description</label>
+          <textarea 
+            rows={4}
+            placeholder="Enter tournament rules, schedule, and extra details here..."
+            value={formData.description}
+            onChange={(e) => setFormData({...formData, description: e.target.value})}
+            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-neon-cyan/50 resize-none transition-all placeholder:text-gray-700"
+          ></textarea>
+        </div>
+
+        <div className="pt-6 flex justify-end gap-4">
+          <button onClick={onClose} className="px-6 py-2 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-widest">Cancel</button>
+          <button 
+            disabled={!formData.eventName || !formData.gameName}
+            onClick={() => onSave(formData)}
+            className="px-8 py-2 rounded-xl bg-neon-cyan/20 border border-neon-cyan text-neon-cyan font-black uppercase tracking-widest text-xs hover:bg-neon-cyan hover:text-black transition-all glow-cyan disabled:opacity-30 disabled:grayscale disabled:pointer-events-none"
+          >
+            Create Event
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   // --- Render Functions for Tabs ---
 
   const renderAuditTab = () => (
@@ -646,47 +841,53 @@ export default function AdminPanel() {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5 bg-transparent">
-            {users.map((user, idx) => (
-              <motion.tr 
-                key={user.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                className={`hover:bg-white/5 transition-colors group ${user.isBlocked ? 'opacity-50 grayscale' : ''}`}
-              >
-                <td className="px-6 py-4">
-                  <span className="block text-white font-medium">{user.name}</span>
-                  <span className="text-xs text-gray-500">{user.email}</span>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="text-gray-300 font-mono text-xs">{user.role}</span>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <span className={`relative flex h-2.5 w-2.5`}>
-                      {user.isOnline && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-green opacity-75"></span>}
-                      <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${user.isOnline ? 'bg-neon-green' : 'bg-gray-500'}`}></span>
-                    </span>
-                    <span className="text-gray-300 font-medium">{user.isOnline ? "Online" : "Offline"}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-gray-500 font-mono text-xs">{user.lastActive}</td>
-                <td className="px-6 py-4 text-right">
-                  {user.role !== "Admin" && (
-                    <button 
-                      onClick={() => toggleBlock(user.id)}
-                      className={`px-4 py-2 rounded-xl border text-xs font-bold transition-all shadow-lg ${
-                        user.isBlocked 
-                          ? 'border-neon-green/30 text-neon-green hover:bg-neon-green/10 hover:shadow-neon-green/20' 
-                          : 'border-red-500/30 text-red-500 hover:bg-red-500/10 hover:shadow-red-500/20'
-                      }`}
-                    >
-                      {user.isBlocked ? "UNBLOCK" : "BLOCK"}
-                    </button>
-                  )}
-                </td>
-              </motion.tr>
-            ))}
+            {loadingUsers ? (
+               <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-500 font-mono italic animate-pulse">Initializing User Database Sync...</td></tr>
+            ) : users.length === 0 ? (
+               <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-500 font-mono italic">No active users found in terminal.</td></tr>
+            ) : (
+              users.map((user, idx) => (
+                <motion.tr 
+                  key={user.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className={`hover:bg-white/5 transition-colors group ${user.isBlocked ? 'opacity-50 grayscale' : ''}`}
+                >
+                  <td className="px-6 py-4">
+                    <span className="block text-white font-medium">{user.name}</span>
+                    <span className="text-xs text-gray-500">{user.email}</span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="text-gray-300 font-mono text-xs">{user.role}</span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <span className={`relative flex h-2.5 w-2.5`}>
+                        {user.isOnline && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-green opacity-75"></span>}
+                        <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${user.isOnline ? 'bg-neon-green' : 'bg-gray-500'}`}></span>
+                      </span>
+                      <span className="text-gray-300 font-medium">{user.isOnline ? "Online" : "Offline"}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-gray-500 font-mono text-xs">{formatLastActive(user.lastActive)}</td>
+                  <td className="px-6 py-4 text-right">
+                    {user.role !== "Admin" && (
+                      <button 
+                        onClick={() => toggleBlock(user.id)}
+                        className={`px-4 py-2 rounded-xl border text-xs font-bold transition-all shadow-lg ${
+                          user.isBlocked 
+                            ? 'border-neon-green/30 text-neon-green hover:bg-neon-green/10 hover:shadow-neon-green/20' 
+                            : 'border-red-500/30 text-red-500 hover:bg-red-500/10 hover:shadow-red-500/20'
+                        }`}
+                      >
+                        {user.isBlocked ? "UNBLOCK" : "BLOCK"}
+                      </button>
+                    )}
+                  </td>
+                </motion.tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -700,7 +901,10 @@ export default function AdminPanel() {
           <Gamepad2 className="w-5 h-5 text-neon-cyan" />
           <span>Tournament Control</span>
         </h2>
-        <button className="flex items-center gap-2 px-4 py-2 bg-neon-cyan/20 border border-neon-cyan/50 text-neon-cyan rounded-xl text-xs font-bold hover:bg-neon-cyan hover:text-black transition-all">
+        <button 
+          onClick={() => setIsCreateModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-neon-cyan/20 border border-neon-cyan/50 text-neon-cyan rounded-xl text-xs font-bold hover:bg-neon-cyan hover:text-black transition-all"
+        >
             <PlusCircle className="w-4 h-4" /> Create New Event
         </button>
       </div>
@@ -1100,6 +1304,23 @@ export default function AdminPanel() {
             onClose={() => setIsManageModalOpen(false)} 
           />
         )}
+      </Modal>
+ 
+      {/* Create Modal */}
+      <Modal 
+        isOpen={isCreateModalOpen} 
+        onClose={() => setIsCreateModalOpen(false)} 
+        title={
+          <div className="flex items-center gap-3">
+            <PlusCircle className="w-6 h-6 text-neon-cyan" />
+            <span>CREATE <span className="text-neon-cyan">NEW EVENT</span></span>
+          </div>
+        }
+      >
+        <CreateTournamentModal 
+          onSave={handleCreateTournament} 
+          onClose={() => setIsCreateModalOpen(false)} 
+        />
       </Modal>
     </div>
   );

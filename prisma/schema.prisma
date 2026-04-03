@@ -44,6 +44,10 @@ model User {
   role          Role      @default(USER)
   credits       Float     @default(0.0) // Gaming hours/credits ledger
   
+  isOnline       Boolean   @default(false)
+  lastActive     DateTime? @default(now())
+  isBlocked      Boolean   @default(false)
+
   accounts         Account[]
   sessions         Session[]
   transactions     Transaction[]
